@@ -209,6 +209,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:tracker/controller/task_controller.dart';
 import 'package:tracker/screens/task_screen.dart';
 import 'package:tracker/screens/theme.dart';
@@ -218,14 +219,13 @@ import '../service/drawer.dart';
 
 class HabitScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
-
     final TaskController taskController = Get.find();
     return Scaffold(
       key: drawerKey,
       appBar: _appBar(context),
-
       drawer: MyDrawer(),
       body: Column(
         children: [
@@ -279,11 +279,8 @@ class HabitScreen extends StatelessWidget {
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                                  Get.to(TaskScreen(
-                                    taskName: taskController.taskList[index],
-                                    isTaskChecked:
-                                        taskController.isTaskSelected[index],
-                                  ));
+                                  _showTaskOptionsDialog(
+                                      context, index, taskController);
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(14.0),
@@ -334,8 +331,14 @@ class HabitScreen extends StatelessWidget {
                                         // Checkbox background color
                                         Icon(
                                           taskController.isTaskSelected[index]
-                                              ? Icons.check_box : Icons.check_box_outline_blank, // Unchecked state icon
-                                          color: Theme.of(context).brightness == Brightness.light ? Colors.white : Theme.of(context).cardColor, // Background color for checkbox in dark theme
+                                              ? Icons.check_box
+                                              : Icons
+                                                  .check_box_outline_blank, // Unchecked state icon
+                                          color: Theme.of(context).brightness ==
+                                                  Brightness.light
+                                              ? Colors.white
+                                              : Theme.of(context)
+                                                  .cardColor, // Background color for checkbox in dark theme
                                           size: 24,
                                         ),
                                         // Tick color
@@ -343,12 +346,18 @@ class HabitScreen extends StatelessWidget {
                                             .isTaskSelected[index])
                                           Icon(
                                             Icons.check, // Tick icon
-                                            color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white, // Tick color in dark theme
+                                            color: Theme.of(context)
+                                                        .brightness ==
+                                                    Brightness.light
+                                                ? Colors.black
+                                                : Colors
+                                                    .white, // Tick color in dark theme
                                             size: 30,
                                           ),
                                       ],
                                     ),
                                   ))),
+
                         ],
                       ),
                     ),
@@ -369,8 +378,7 @@ class HabitScreen extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: Neumorphic(
-        style: neumorphicButtonStyle(context, isSelected: false,),
-
+        style: neumorphicButtonStyle(context, isSelected: false),
         child: AppBar(
           title: Text("My Habits"),
           centerTitle: true,
@@ -379,7 +387,9 @@ class HabitScreen extends StatelessWidget {
           leading: IconButton(
             icon: Icon(
               Icons.menu,
-              color: isDarkTheme ? Colors.white : Colors.black, // Ensure visibility
+              color: isDarkTheme
+                  ? Colors.white
+                  : Colors.black, // Ensure visibility
             ),
             onPressed: () {
               drawerKey.currentState?.openDrawer();
@@ -392,7 +402,8 @@ class HabitScreen extends StatelessWidget {
               },
               icon: Icon(
                 Icons.add,
-                color: Theme.of(context).iconTheme.color, // Use theme icon color
+                color:
+                    Theme.of(context).iconTheme.color, // Use theme icon color
               ),
             ),
           ],
@@ -401,9 +412,76 @@ class HabitScreen extends StatelessWidget {
     );
   }
 
+  void _showTaskOptionsDialog(
+      BuildContext context, int index, TaskController taskController) {
+    // Get today's date
+    String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Mark Task'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                  'Do you want to mark this task as completed or not completed?'),
+              SizedBox(
+                  height:
+                      16), // Add some space between content and date message
+              Text('Task updated for today: $todayDate',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                // Update task status to completed and navigate to TaskScreen
+                taskController.updateTaskStatus(index, true);
+                print('Task marked as completed for today: $todayDate.');
 
+                // Navigate to TaskScreen
+                Get.off(() => TaskScreen(
+                  taskName: taskController.taskList[index],
+                  isTaskChecked: true,
+                  index:index,
 
+                ));
+              },
+              child: Text('Completed'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Update task status to not completed and navigate to TaskScreen
+                taskController.updateTaskStatus(index, false);
+                print('Task marked as not completed for today: $todayDate.');
+
+                // Navigate to TaskScreen
+                Get.off(() => TaskScreen(
+                  taskName: taskController.taskList[index],
+                  isTaskChecked: false,
+                  index: index,
+                ));
+              },
+              child: Text('Not Completed'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigate to TaskScreen without changing task status
+                Get.off(() => TaskScreen(
+                  index: index,
+                      taskName: taskController.taskList[index],
+                      isTaskChecked: taskController.isTaskSelected[index],
+                    ));
+              },
+              child: Text('Open Task'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showAddTaskBottomSheet() {
     final TaskController taskController = Get.find();

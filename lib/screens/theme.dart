@@ -44,13 +44,10 @@ NeumorphicStyle neumorphicButtonStyle(BuildContext context,
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   final backgroundColor = isLightTheme
-      ? (isSelected
-          ? Colors.white
-          : Colors.white)
+      ? (isSelected ? Colors.white : Colors.white)
       : (isSelected
           ? Theme.of(context).primaryColor
-          : Theme.of(context)
-              .cardColor);
+          : Theme.of(context).cardColor);
 
   final shadowColor = Theme.of(context).shadowColor;
   final highlightColor = Theme.of(context).highlightColor;
@@ -118,10 +115,6 @@ TextStyle getDrawerButtonTextStyle(BuildContext context) {
   );
 }
 
-
-
-
-
 NeumorphicStyle neumorphicToggleButtonStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
@@ -130,22 +123,24 @@ NeumorphicStyle neumorphicToggleButtonStyle(BuildContext context) {
     depth: 9, // Depth for toggle button
     intensity: 0.7,
     lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Colors.black.withOpacity(0.5) : Colors.black.withOpacity(0.7),
-    shadowLightColor: isLightTheme ? Colors.white.withOpacity(0.3) : Colors.grey.shade800.withOpacity(0.5),
+    shadowDarkColor: isLightTheme
+        ? Colors.black.withOpacity(0.5)
+        : Colors.black.withOpacity(0.7),
+    shadowLightColor: isLightTheme
+        ? Colors.white.withOpacity(0.3)
+        : Colors.grey.shade800.withOpacity(0.5),
     shape: NeumorphicShape.convex, // Convex shape for the toggle button
     boxShape: NeumorphicBoxShape.circle(), // Circle shape for the toggle button
   );
 }
 
-
-//
-// NeumorphicStyle neumorphicGraphContainerStyle(BuildContext context) {
-//   return NeumorphicStyle(
-//     color: Theme.of(context).cardColor, // Use the card color from the theme
-//     depth: 8,
-//     intensity: 0.6,
-//     lightSource: LightSource.topLeft,
-//     shadowDarkColor: Theme.of(context).shadowColor,
-//     shadowLightColor: Theme.of(context).highlightColor,
-//   );
-// }
+NeumorphicStyle neumorphicGraphContainerStyle(BuildContext context) {
+  return NeumorphicStyle(
+    color: Theme.of(context).cardColor, // Use the card color from the theme
+    depth: 8,
+    intensity: 0.8,
+    lightSource: LightSource.topLeft,
+    shadowDarkColor: Theme.of(context).shadowColor,
+    shadowLightColor: Theme.of(context).highlightColor,
+  );
+}

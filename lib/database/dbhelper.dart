@@ -1,21 +1,34 @@
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class DatabaseHelper {
+  // Table names
+  static const String tableTasks = 'tasks';
+  static const String tableTaskUpdates = 'task_updates';
+
+  // Column names for tasks table
+  static const String columnId = 'id';
+  static const String columnTask = 'task';
+  static const String columnIsChecked = 'is_checked';
+  static const String columnProgress = 'progress';
+  static const String columnCreatedDate = 'created_date';
+  static const String columnUpdatedDate = 'updated_date';
+  static const String columnDayName = 'day_name'; // New column for day name
+
+  // Column names for task_updates table
+  static const String columnUpdateId = 'id'; // Assuming same ID column
+  static const String columnTaskName = 'task_name';
+  static const String columnCompleted = 'completed';
+  static const String columnUpdateProgress = 'progress';
+  static const String columnUpdateDate = 'updated_date';
+
+  // Singleton pattern
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
   DatabaseHelper._internal();
 
+  // Database variable
   static Database? _database;
-
-  // Static constants for table and column names
-  static const String _tableTasks = 'tasks';
-  static const String _columnId = 'id';
-  static const String _columnTask = 'task';
-  static const String _columnIsChecked = 'is_checked';
-  static const String _columnProgress = 'progress';
-  static const String _columnCreatedDate = 'created_date';
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -24,199 +37,150 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'tasks.db');
-
-    return await openDatabase(
-      path,
-      version: 1,
+    return openDatabase(
+      'tasks.db',
+      version: 2, // Increment the version number if there are schema changes
       onCreate: (db, version) async {
+        await db.execute(''' 
+          CREATE TABLE $tableTasks (
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnTask TEXT,
+            $columnIsChecked INTEGER,
+            $columnProgress REAL,
+            $columnCreatedDate TEXT,
+            $columnUpdatedDate TEXT,
+            $columnDayName TEXT
+          )
+        ''');
         await db.execute('''
-          CREATE TABLE $_tableTasks (
-            $_columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-            $_columnTask TEXT UNIQUE,
-            $_columnIsChecked INTEGER,
-            $_columnProgress REAL,
-            $_columnCreatedDate TEXT
+          CREATE TABLE $tableTaskUpdates (
+            $columnUpdateId INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnTaskName TEXT,
+            $columnCompleted INTEGER,
+            $columnUpdateProgress REAL,
+            $columnUpdateDate TEXT
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) { // Upgrade to version 2
+          // Add the new column to the existing table
+          await db.execute(''' 
+            ALTER TABLE $tableTasks ADD COLUMN $columnDayName TEXT
+          ''');
+        }
+        // You can add further upgrade logic here for future versions
+      },
     );
   }
 
-  Future<List<Map<String, dynamic>>> getTasks() async {
+  // Method to insert a new task
+  Future<int> insertTask(String task, bool isChecked, double progress, String createdDate, String updatedDate) async {
     final db = await database;
-    return await db.query(_tableTasks);
-  }
-
-  Future<int?> insertTask(
-      String task, bool isChecked, double progress, String createdDate) async {
-    final db = await database;
-    try {
-      return await db.insert(
-        _tableTasks,
-        {
-          _columnTask: task,
-          _columnIsChecked: isChecked ? 1 : 0,
-          _columnProgress: progress,
-          _columnCreatedDate: createdDate,
-        },
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
-    } catch (e) {
-      print("Error inserting task: $e");
-      return null;
-    }
-  }
-
-  Future<int> deleteTask(String task) async {
-    final db = await database;
-    return await db.delete(
-      _tableTasks,
-      where: '$_columnTask = ?',
-      whereArgs: [task],
+    return await db.insert(
+      tableTasks,
+      {
+        columnTask: task,
+        columnIsChecked: isChecked ? 1 : 0,
+        columnProgress: progress,
+        columnCreatedDate: createdDate,
+        columnUpdatedDate: updatedDate,
+        columnDayName: DateFormat('EEEE').format(DateTime.now()), // Add day name
+      },
     );
   }
 
-  Future<int> updateTask(String oldTask, String newTask, bool isChecked,
-      double progress, String updatedDate) async {
+  // Method to update an existing task
+  Future<int> updateTask(String oldTask, String newTask, bool isChecked, double progress, String updatedDate) async {
     final db = await database;
     return await db.update(
-      _tableTasks,
+      tableTasks,
       {
-        _columnTask: newTask,
-        _columnIsChecked: isChecked ? 1 : 0,
-        _columnProgress: progress,
-        _columnCreatedDate: updatedDate,
+        columnTask: newTask,
+        columnIsChecked: isChecked ? 1 : 0,
+        columnProgress: progress,
+        columnUpdatedDate: updatedDate,
       },
-      where: '$_columnTask = ?',
+      where: '$columnTask = ?',
       whereArgs: [oldTask],
     );
   }
 
-  Future<List<Map<String, dynamic>>> getTaskProgressForRange(
-      String taskName, String startDate, String endDate) async {
+  // Method to delete a task
+  Future<int> deleteTask(String task) async {
     final db = await database;
-    final results = await db.query(
-      _tableTasks,
-      where: '$_columnTask = ? AND $_columnCreatedDate BETWEEN ? AND ?',
+    return await db.delete(
+      tableTasks,
+      where: '$columnTask = ?',
+      whereArgs: [task],
+    );
+  }
+
+  // Method to fetch all tasks
+  Future<List<Map<String, dynamic>>> getTasks() async {
+    final db = await database;
+    return await db.query(tableTasks);
+  }
+
+  // Method to insert a new task update
+  Future<int> insertTaskUpdate(String taskName, bool isChecked, double progress, String updatedDate) async {
+    final db = await database;
+    return await db.insert(
+      tableTaskUpdates,
+      {
+        columnTaskName: taskName,
+        columnCompleted: isChecked ? 1 : 0,
+        columnUpdateProgress: progress,
+        columnUpdateDate: updatedDate,
+      },
+    );
+  }
+
+
+
+  // Method to fetch task data for a specific week
+  Future<List<Map<String, dynamic>>> fetchTaskDataForWeek(String taskName) async {
+    final db = await database;
+    String endDate = DateTime.now().toIso8601String();
+    String startDate = DateTime.now().subtract(Duration(days: 7)).toIso8601String();
+
+    return await db.query(
+      tableTaskUpdates,
+      where: '$columnTaskName = ? AND $columnUpdateDate BETWEEN ? AND ?',
       whereArgs: [taskName, startDate, endDate],
     );
-    //final progressData = await getTaskProgressForRange(taskName, startDate, endDate);
-    print('Queried Data: $results');
-    return results;
   }
 
-  Future<List<double>> fetchProgressDataForWeek(String taskName) async {
-    final now = DateTime.now();
-    final currentWeekday = now.weekday;
-
-    // Calculate the start and end of the week (Monday to Sunday)
-    final startOfWeek =
-        now.subtract(Duration(days: currentWeekday - DateTime.monday));
-    final endOfWeek = now.add(Duration(days: DateTime.sunday - currentWeekday));
-
-    final startDate = DateFormat('yyyy-MM-dd').format(startOfWeek);
-    final endDate = DateFormat('yyyy-MM-dd').format(endOfWeek);
-
-    print('Fetching data from $startDate to $endDate');
-
-    try {
-      final progressData =
-          await getTaskProgressForRange(taskName, startDate, endDate);
-
-      // Initialize result list with zeros for all 7 days
-      final result = List<double>.filled(7, 0.0);
-
-      // Populate result list with actual data
-      if (progressData.isNotEmpty) {
-        for (var entry in progressData) {
-          final dateString = entry[_columnCreatedDate] as String?;
-          final progressValue = entry[_columnProgress] as double?;
-
-          if (dateString != null && progressValue != null) {
-            final date = DateTime.parse(dateString).toLocal();
-            final dayOfWeek = (date.weekday - DateTime.monday + 7) %
-                7; // Adjust to match Monday start
-            if (dayOfWeek >= 0 && dayOfWeek < 7) {
-              result[dayOfWeek] = progressValue;
-            }
-          }
-        }
-      } else {
-        print('No progress data found for the specified range.');
-      }
-
-      //  current day's bar is visible with the correct progress
-      final currentDayIndex = (now.weekday - DateTime.monday + 7) % 7;
-      if (result[currentDayIndex] == 0.0) {
-        result[currentDayIndex] = 1.0; //  current day's bar shows 1.0 progress if the task is completed
-      }
-
-      print('Progress Data for the Week: $result');
-      return result;
-    } catch (e) {
-      print('Error fetching progress data: $e');
-      return List<double>.filled(7, 0.0);
-    }
+  // Method to get task history
+  Future<List<Map<String, dynamic>>> getTaskHistory(String task) async {
+    final db = await database;
+    return await db.query(
+      tableTaskUpdates,
+      where: '$columnTaskName = ?',
+      whereArgs: [task],
+    );
   }
 
-  Future<List<double>> fetchProgressDataForPreviousWeek(String taskName) async {
-    final now = DateTime.now();
-    final currentWeekday = now.weekday;
+  // Method to update the day name for a task
+  Future<int> updateTaskDayName(String taskName, String dayName) async {
+    final db = await database;
+    return await db.update(
+      tableTasks,
+      {
+        columnDayName: dayName,
+      },
+      where: '$columnTask = ?',
+      whereArgs: [taskName],
+    );
+  }
 
-    // current week monday
-    final mondayOfCurrentWeek = now.subtract(Duration(days: (currentWeekday - 1) % 7));
-
-     // Calculate Start and End of Previous Week
-    final startOfPreviousWeek = mondayOfCurrentWeek.subtract(Duration(days: 7));
-    final endOfPreviousWeek = mondayOfCurrentWeek.subtract(Duration(days: 1));
-
-
-    final startDate = DateFormat('yyyy-MM-dd').format(startOfPreviousWeek);
-    final endDate = DateFormat('yyyy-MM-dd').format(endOfPreviousWeek);
-    print('Monday of Current Week: $mondayOfCurrentWeek');
-    print('Start of Previous Week: $startOfPreviousWeek');
-    print('End of Previous Week: $endOfPreviousWeek');
-
-    print('Fetching data from $startDate to $endDate');
-
-    try {
-      final progressData =
-          await getTaskProgressForRange(taskName, startDate, endDate);
-
-      print('Fetched Data: $progressData');
-
-      final result = List<double>.filled(7, 0.0);
-
-      if (progressData.isNotEmpty) {
-        for (var entry in progressData) {
-          final dateString = entry[_columnCreatedDate] as String?;
-          final progressValue = entry[_columnProgress] as double?;
-
-          print('Date String: $dateString, Progress Value: $progressValue');
-
-          if (dateString != null && progressValue != null) {
-            final date = DateTime.parse(dateString).toLocal();
-            final dayOfWeek = (date.weekday - DateTime.monday + 7) % 7; // Adjust to match Monday start
-            print('Day of Week: $dayOfWeek');
-            if (dayOfWeek >= 0 && dayOfWeek < 7) {
-              result[dayOfWeek] = progressValue;
-            }
-          }
-        }
-      } else {
-        print('No progress data found for the specified range.');
-      }
-
-      print('Progress Data for the Previous Week: $result');
-      return result;
-    } catch (e) {
-      print('Error fetching progress data: $e');
-      return List<double>.filled(7, 0.0);
-    }
+  // Method to fetch task details by task name
+  Future<List<Map<String, dynamic>>> getTaskDetails(String taskName) async {
+    final db = await database;
+    return await db.query(
+      tableTasks,
+      where: '$columnTask = ?',
+      whereArgs: [taskName],
+    );
   }
 }
-
-
-

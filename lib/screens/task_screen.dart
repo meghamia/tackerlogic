@@ -1,313 +1,248 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import '../controller/task_controller.dart';
+import 'calendar_screen.dart';
+import 'theme.dart';
 
 class TaskScreen extends StatelessWidget {
   final String taskName;
   final bool isTaskChecked;
+  final int index; // Add index parameter
 
-  TaskScreen({required this.taskName, required this.isTaskChecked});
+  TaskScreen({
+    required this.taskName,
+    required this.isTaskChecked,
+    required this.index, // Add index parameter
+  });
 
-  Future<Map<String, List<double>>> fetchAllProgressData(
+  Future<List<double>> fetchAllProgressData(
       TaskController taskController) async {
-    final currentWeekData = await taskController.fetchProgressDataForWeek(taskName);
-    final previousWeekData = await taskController.fetchProgressDataForPreviousWeek(taskName);
-    return {
-      'currentWeek': currentWeekData,
-      'previousWeek': previousWeekData,
-    };
+    try {
+      final progressData = await taskController.fetchProgressDataForLastDays(7);
+      print('Fetched Progress Data for Last 7 Days: $progressData');
+      return progressData;
+    } catch (e) {
+      print('Error fetching progress data: $e');
+      return List<double>.filled(7, 0.0); // Return zeros if there's an error
+    }
   }
+
+  Future<void> updateTaskStatus(
+      TaskController taskController, int index, bool isCompleted) async {
+    try {
+      // Update the task status using the index
+      await taskController.updateTaskStatusByIndex(index, isCompleted);
+      print('Task status updated: Index=$index, isCompleted=$isCompleted');
+    } catch (e) {
+      print('Error updating task status: $e');
+    }
+  }
+
+
+  @override
+// Inside TaskScreen class
 
   @override
   Widget build(BuildContext context) {
     final TaskController taskController = Get.find();
+    final ThemeData themeData = Theme.of(context);
+    final isLightTheme = themeData.brightness == Brightness.light;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Task Details"),
-        backgroundColor: Colors.blue,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: Neumorphic(
+          style: neumorphicButtonStyle(
+            context,
+            isSelected: false,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: AppBar(
+              title: Text(
+                taskName,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: true,
+              iconTheme: IconThemeData(
+                  color: isLightTheme ? Colors.black : Colors.white),
+            ),
+          ),
+        ),
       ),
-      body: FutureBuilder<Map<String, List<double>>>(
+      body: FutureBuilder<List<double>>(
         future: fetchAllProgressData(taskController),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No data available.'));
           }
 
-          final currentWeekData = snapshot.data!['currentWeek']!;
-          final previousWeekData = snapshot.data!['previousWeek']!;
-
-          if (!isTaskChecked) {
-            return Center(child: Text('No data available for this task.'));
-          }
+          final progressData = isTaskChecked
+              ? snapshot.data!
+              : List<double>.filled(7, 0.0);
 
           final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-          final today = DateTime.now();
-          final currentDayIndex = (today.weekday - DateTime.monday + 7) % 7;
-
-          List<Widget> charts = [];
-
-          // Create Current Week Chart
-          final currentWeekProgressData = List<double>.filled(7, 0.0);
-          for (int i = 0; i < currentWeekData.length; i++) {
-            currentWeekProgressData[i] = currentWeekData[i];
-          }
-
-          final currentWeekBarGroups =
-              currentWeekProgressData.asMap().entries.map((entry) {
-            int index = entry.key;
-            double value = entry.value;
-            Color barColor = Colors.blue;
-            double barHeight = value;
-
-            if (index < currentDayIndex) {
-              if (value == 0.0) {
-                barColor = Colors.grey;
-                barHeight = 0.2;
-              } else {
-                barColor = Colors.blue;
-                barHeight = value;
-              }
-            } else if (index > currentDayIndex) {
-              barColor = Colors.transparent;
-              barHeight = 0.0;
-            }
-
+          double maxValue = progressData.reduce((a, b) => a > b ? a : b);
+          final currentWeekBarGroups = List.generate(7, (index) {
+            double value = index < progressData.length ? progressData[index] : 0.0;
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY: barHeight,
-                  color: barColor,
+                  fromY: 0,
+                  toY: value,
+                  color: value > 0 ? Colors.blue : Colors.grey,
                   width: 20,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
             );
-          }).toList();
+          });
 
-          charts.add(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Current Week',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  height: 300,
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: currentWeekProgressData.isNotEmpty
-                          ? currentWeekProgressData
-                                  .reduce((a, b) => a > b ? a : b) +
-                              1
-                          : 1,
-                      barGroups: currentWeekBarGroups,
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            getTitlesWidget: (value, meta) {
-                              final dayLabel = daysOfWeek[value.toInt() % 7];
-                              return SideTitleWidget(
-                                axisSide: meta.axisSide,
-                                child: Text(dayLabel,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                              );
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            getTitlesWidget: (value, meta) {
-                              return SideTitleWidget(
-                                axisSide: meta.axisSide,
-                                child: Text('${value.toInt()}',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                              );
-                            },
+          return ListView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Neumorphic(
+                        style:
+                        neumorphicButtonStyle(context, isSelected: false),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              NeumorphicButton(
+                                onPressed: () async {
+                                  await updateTaskStatus(
+                                    taskController,
+                                    index, // Pass the index
+                                    true,  // Mark as completed
+                                  );
+                                },
+                                style: NeumorphicStyle(
+                                  depth: -7,
+                                  intensity: 0.8,
+                                  boxShape: NeumorphicBoxShape.roundRect(
+                                      BorderRadius.circular(8)),
+                                  lightSource: LightSource.bottomLeft,
+                                  color: Theme.of(context)
+                                      .cardColor,
+                                ),
+                                child: Container(
+                                  width: 70,
+                                  height: 20,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Tracker',
+                                    style: getDrawerButtonTextStyle(context),
+                                  ),
+                                ),
+                              ),
+                              NeumorphicButton(
+                                onPressed: () async {
+                                  await updateTaskStatus(
+                                    taskController,
+                                    index, // Pass the index
+                                    false, // Mark as not completed
+                                  );
+                                  Get.to(() => MyCalendar());
+                                },
+
+                                style: neumorphicButtonStyle(context,
+                                    isSelected: false),
+                                child: Text(
+                                  'Insights',
+                                  style: getDrawerButtonTextStyle(context),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(
-                            color: const Color(0xff37434d), width: 1),
-                      ),
-                      gridData: FlGridData(show: true),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
+                  SizedBox(height: 40),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
+                      height: 300,
+                      child: Neumorphic(
+                        style: neumorphicGraphContainerStyle(context),
+                        child: BarChart(
+                          BarChartData(
+                            alignment: BarChartAlignment.spaceAround,
+                            barGroups: currentWeekBarGroups,
+                            titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    final dayLabel = daysOfWeek[value.toInt() % 7];
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      child: Text(dayLabel,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold)),
+                                    );
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      child: Text('${value.toInt()}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold)),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            gridData: FlGridData(show: true),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: const Color(0xff37434d),
+                                width: 1,
+                              ),
+                            ),
+                            maxY: maxValue + 5, // Add padding above the max value
 
-          // Create Previous Week Chart
-          final previousWeekProgressData = List<double>.filled(7, 0.0);
-          for (int i = 0; i < previousWeekData.length; i++) {
-            previousWeekProgressData[i] = previousWeekData[i];
-          }
-
-          final previousWeekBarGroups =
-              previousWeekProgressData.asMap().entries.map((entry) {
-            int index = entry.key;
-            double value = entry.value;
-            Color barColor = value == 1.0 ? Colors.blue : Colors.grey;
-            double barHeight = value == 1.0 ? 1.0 : 0.1;
-
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: barHeight,
-                  color: barColor,
-                  width: 20,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
-            );
-          }).toList();
-
-          charts.add(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Previous Week',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  height: 300,
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: previousWeekProgressData.isNotEmpty
-                          ? previousWeekProgressData
-                                  .reduce((a, b) => a > b ? a : b) +
-                              1
-                          : 1,
-                      barGroups: previousWeekBarGroups,
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            getTitlesWidget: (value, meta) {
-                              final dayLabel = daysOfWeek[value.toInt() % 7];
-                              return SideTitleWidget(
-                                axisSide: meta.axisSide,
-                                child: Text(dayLabel,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                              );
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
-                            getTitlesWidget: (value, meta) {
-                              return SideTitleWidget(
-                                axisSide: meta.axisSide,
-                                child: Text('${value.toInt()}',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                              );
-                            },
                           ),
                         ),
                       ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(
-                            color: const Color(0xff37434d), width: 1),
-                      ),
-                      gridData: FlGridData(show: true),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-
-          return PageView(
-            children: charts,
+                ],
+              ),
+            ],
           );
         },
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
