@@ -1,13 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:goalsync/screens/calendar_screen.dart';
-import 'package:goalsync/screens/theme.dart';
-import 'package:intl/intl.dart';
-import '../controller/task_controller.dart';
-
 class TaskScreen extends StatelessWidget {
   final String taskName;
   final bool isTaskChecked;
