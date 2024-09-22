@@ -239,7 +239,4 @@ class DatabaseHelper {
   //   );
   // }
 
-
-
-
 }
