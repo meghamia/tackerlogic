@@ -2,30 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:goalsync/screens/calendar_screen.dart';
+import 'package:goalsync/screens/theme.dart';
+import 'package:intl/intl.dart';
 import '../controller/task_controller.dart';
-import 'calendar_screen.dart';
-import 'theme.dart';
 
 class TaskScreen extends StatelessWidget {
   final String taskName;
   final bool isTaskChecked;
-  final int index; // Add index parameter
+  final int index;
 
   TaskScreen({
     required this.taskName,
     required this.isTaskChecked,
-    required this.index, // Add index parameter
+    required this.index,
   });
+
+  String get trackedDate {
+    return DateFormat('dd-MM-yyyy').format(DateTime.now());
+  }
 
   Future<List<double>> fetchAllProgressData(
       TaskController taskController) async {
+    print('Fetching progress data...');
     try {
-      final progressData = await taskController.fetchProgressDataForLastDays(7);
+      final progressData =
+          await taskController.fetchProgressDataForTrackedDate(trackedDate);
       print('Fetched Progress Data for Last 7 Days: $progressData');
       return progressData;
     } catch (e) {
       print('Error fetching progress data: $e');
-      return List<double>.filled(7, 0.0); // Return zeros if there's an error
+      return List<double>.filled(7, 0.0);
     }
   }
 
@@ -39,10 +47,6 @@ class TaskScreen extends StatelessWidget {
       print('Error updating task status: $e');
     }
   }
-
-
-  @override
-// Inside TaskScreen class
 
   @override
   Widget build(BuildContext context) {
@@ -88,15 +92,12 @@ class TaskScreen extends StatelessWidget {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No data available.'));
           }
-
-          final progressData = isTaskChecked
-              ? snapshot.data!
-              : List<double>.filled(7, 0.0);
-
+          final progressData = isTaskChecked ? snapshot.data! : List<double>.filled(7, 0.0);
           final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
           double maxValue = progressData.reduce((a, b) => a > b ? a : b);
           final currentWeekBarGroups = List.generate(7, (index) {
             double value = index < progressData.length ? progressData[index] : 0.0;
+            print('Index: $index, Day: ${daysOfWeek[index]}, Value: $value'); // Debug print
             return BarChartGroupData(
               x: index,
               barRods: [
@@ -114,65 +115,73 @@ class TaskScreen extends StatelessWidget {
           return ListView(
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Neumorphic(
-                        style:
-                        neumorphicButtonStyle(context, isSelected: false),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              NeumorphicButton(
-                                onPressed: () async {
-                                  await updateTaskStatus(
-                                    taskController,
-                                    index, // Pass the index
-                                    true,  // Mark as completed
-                                  );
-                                },
-                                style: NeumorphicStyle(
-                                  depth: -7,
-                                  intensity: 0.8,
-                                  boxShape: NeumorphicBoxShape.roundRect(
-                                      BorderRadius.circular(8)),
-                                  lightSource: LightSource.bottomLeft,
-                                  color: Theme.of(context)
-                                      .cardColor,
-                                ),
-                                child: Container(
-                                  width: 70,
-                                  height: 20,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Tracker',
-                                    style: getDrawerButtonTextStyle(context),
+                    child: Container(
+                      width: 310,
+                      child: ListTile(
+                        title: Neumorphic(
+                          style:
+                              neumorphicButtonStyle(context, isSelected: false),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isLightTheme
+                                          ? Colors.white
+                                          : Colors
+                                              .black12, // Border color based on theme
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: NeumorphicButton(
+                                    onPressed: () async {
+                                      await updateTaskStatus(
+                                        taskController,
+                                        index, // Pass the index
+                                        true, // Mark as completed
+                                      );
+                                    },
+                                    style: NeumorphicStyle(
+                                      depth: -7,
+                                      intensity: 0.8,
+                                      boxShape: NeumorphicBoxShape.roundRect(
+                                          BorderRadius.circular(8)),
+                                      lightSource: LightSource.bottomLeft,
+                                      color: Theme.of(context).cardColor,
+                                    ),
+                                    child: Container(
+                                      width: 70,
+                                      height: 20,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Tracker',
+                                        style:
+                                            getDrawerButtonTextStyle(context),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              NeumorphicButton(
-                                onPressed: () async {
-                                  await updateTaskStatus(
-                                    taskController,
-                                    index, // Pass the index
-                                    false, // Mark as not completed
-                                  );
-                                  Get.to(() => MyCalendar());
-                                },
-
-                                style: neumorphicButtonStyle(context,
-                                    isSelected: false),
-                                child: Text(
-                                  'Insights',
-                                  style: getDrawerButtonTextStyle(context),
-                                  textAlign: TextAlign.center,
+                                GestureDetector(
+                                  onTap: () {
+                                    // Navigate to MyCalendar screen
+                                    Get.to(() => MyCalendar());
+                                  },
+                                  child: Text(
+                                    'Insights',
+                                    style: getDrawerButtonTextStyle(context),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -184,57 +193,96 @@ class TaskScreen extends StatelessWidget {
                     child: Container(
                       height: 300,
                       child: Neumorphic(
-                        style: neumorphicGraphContainerStyle(context),
-                        child: BarChart(
-                          BarChartData(
-                            alignment: BarChartAlignment.spaceAround,
-                            barGroups: currentWeekBarGroups,
-                            titlesData: FlTitlesData(
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 40,
-                                  getTitlesWidget: (value, meta) {
-                                    final dayLabel = daysOfWeek[value.toInt() % 7];
-                                    return SideTitleWidget(
-                                      axisSide: meta.axisSide,
-                                      child: Text(dayLabel,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold)),
+                          style: neumorphicGraphContainerStyle(context),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 16.0,
+                                right: 16.0,
+                                top: 16.0,
+                                bottom: 8.0),
+                            child: BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                barGroups: currentWeekBarGroups,
+                                titlesData: FlTitlesData(
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 40,
+                                      getTitlesWidget: (value, meta) {
+                                        final dayLabel =
+                                            daysOfWeek[value.toInt() % 7];
+                                        return SideTitleWidget(
+                                          axisSide: meta.axisSide,
+                                          child: Text(dayLabel,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold)),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 10,
+                                      interval: 1,
+                                      getTitlesWidget: (value, meta) {
+                                        if (value >= 0 && value <= 6) {
+                                          return SideTitleWidget(
+                                            axisSide: meta.axisSide,
+                                            child: Text('${value.toInt()}',
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          );
+                                        }
+                                        return SizedBox.shrink();
+                                      },
+                                    ),
+                                  ),
+                                  topTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: false,
+                                    ),
+                                  ),
+                                  rightTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: false,
+                                    ),
+                                  ),
+                                ),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: false,
+                                  horizontalInterval: 1,
+                                  getDrawingHorizontalLine: (value) {
+                                    if (value >= 0 && value <= 6) {
+                                      return FlLine(
+                                        color: Colors.grey,
+                                        strokeWidth: 1,
+                                      );
+                                    }
+                                    return FlLine(
+                                      color: Colors.transparent,
                                     );
                                   },
                                 ),
-                              ),
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 40,
-                                  getTitlesWidget: (value, meta) {
-                                    return SideTitleWidget(
-                                      axisSide: meta.axisSide,
-                                      child: Text('${value.toInt()}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold)),
-                                    );
-                                  },
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: const Color(0xff37434d),
+                                      width: 1,
+                                    ),
+                                  ),
                                 ),
+                                minY: 0,
+                                maxY: 6.5,
                               ),
                             ),
-                            gridData: FlGridData(show: true),
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(
-                                color: const Color(0xff37434d),
-                                width: 1,
-                              ),
-                            ),
-                            maxY: maxValue + 5, // Add padding above the max value
-
-                          ),
-                        ),
-                      ),
+                          )),
                     ),
                   ),
                 ],
