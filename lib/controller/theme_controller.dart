@@ -1,19 +1,19 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 
 class ThemeController extends GetxController {
-  RxBool isDark = false.obs;
+  RxBool isDark = true.obs; // Start with true for dark theme
 
   @override
   void onInit() {
     super.onInit();
-    _loadTheme();
+    loadTheme();
   }
 
-  Future<void> _loadTheme() async {
+  Future<void> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    isDark.value = prefs.getBool('isDark') ?? false;
+    isDark.value = prefs.getBool('isDark') ?? true; // Default to dark theme
     Get.changeThemeMode(isDark.value ? ThemeMode.dark : ThemeMode.light);
   }
 
