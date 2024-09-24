@@ -1,221 +1,13 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:goalsync/controller/task_controller.dart';
-// import 'package:goalsync/screens/task_screen.dart';
-//
-// import '../controller/theme_controller.dart';
-//
-// class HabitScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     final TaskController taskController = Get.find();
-//     final ThemeController themeController = Get.find();
-//
-//     return Scaffold(
-//       appBar: _appBar(context),
-//       body: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(17.0),
-//             child: Row(
-//               children: [],
-//             ),
-//           ),
-//           Expanded(
-//             child: Obx(() {
-//               if (taskController.isTaskSelected.length <
-//                   taskController.taskList.length) {
-//                 taskController.isTaskSelected.addAll(
-//                   List.generate(
-//                     taskController.taskList.length -
-//                         taskController.isTaskSelected.length,
-//                     (_) => false,
-//                   ),
-//                 );
-//               }
-//
-//               return ListView.separated(
-//                 itemCount: taskController.taskList.length,
-//                 separatorBuilder: (context, index) =>
-//                     SizedBox(height: 16), // Space between items
-//                 itemBuilder: (context, index) {
-//                   return Dismissible(
-//                     key: ValueKey(taskController.taskList[index]),
-//                     background: Container(
-//                       color: Colors.blue.shade300,
-//                       child: Icon(Icons.delete_outline,
-//                           size: 35, color: Colors.white),
-//                       alignment: Alignment.centerRight,
-//                       padding: EdgeInsets.symmetric(horizontal: 20),
-//                     ),
-//                     direction: DismissDirection.endToStart,
-//                     onDismissed: (direction) {
-//                       taskController.deleteTask(index);
-//                     },
-//                     child: Padding(
-//                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//                       child: Container(
-//                         color: Theme.of(context)
-//                             .listTileTheme
-//                             .tileColor, // Use theme tile color
-//                         child: Row(
-//                           children: [
-//                             Expanded(
-//                               child: Container(
-//                                 padding: EdgeInsets.all(14.0),
-//                                 decoration: BoxDecoration(
-//                                   color: Theme.of(context)
-//                                       .cardColor, // Use theme card color
-//                                   borderRadius: BorderRadius.circular(6),
-//                                   border: Border.all(
-//                                       color: Theme.of(context).cardColor,
-//                                       width: 2),
-//                                   boxShadow: [
-//                                     BoxShadow(
-//                                       color: Colors.black.withOpacity(
-//                                           0.5), // Shadow color for better visibility
-//                                       spreadRadius: 1,
-//                                       blurRadius: 4,
-//                                       offset: Offset(0, 10),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 child: GestureDetector(
-//                                   onTap: () {
-//                                     Get.to(TaskScreen(
-//                                       taskName: taskController.taskList[index],
-//                                       isTaskChecked:
-//                                           taskController.isTaskSelected[index],
-//                                     ));
-//                                   },
-//                                   child: Text(
-//                                     taskController.taskList[index],
-//                                     style: TextStyle(
-//                                       color: Theme.of(context)
-//                                           .textTheme
-//                                           .bodyLarge!
-//                                           .color, // Use theme text color
-//                                       fontSize: 18,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ),
-//                             ),
-//                             SizedBox(
-//                                 width:
-//                                     10), // Space between container and checkbox
-//                             Checkbox(
-//                               value: taskController.isTaskSelected[index],
-//                               onChanged: (bool? value) {
-//                                 if (value != null) {
-//                                   taskController.toggleTaskSelection(
-//                                       index, value);
-//                                 }
-//                               },
-//                               activeColor: Colors.blue,
-//                               checkColor: Colors.white,
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               );
-//             }),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   _appBar(BuildContext context) {
-//     final ThemeController themeController = Get.find();
-//     return AppBar(
-//       title: Text("My Habits"),
-//       actions: [
-//         TextButton(
-//           onPressed: () {
-//             _showAddTaskDialog();
-//           },
-//           child: Text(
-//             '+ ',
-//             style: TextStyle(
-//               color: Theme.of(context).iconTheme.color, // Use theme icon color
-//               fontSize: 35,
-//             ),
-//           ),
-//         ),
-//         GestureDetector(
-//           onTap: () {
-//             // Use GetX to change the theme reactively
-//             themeController.changeTheme();
-//           },
-//           child: Obx(() {
-//             return Icon(
-//               themeController.isDark.value ? Icons.dark_mode : Icons.light_mode,
-//               color: Theme.of(context).iconTheme.color, // Use theme icon color
-//             );
-//           }),
-//         ),
-//         SizedBox(width: 16), // Optional: add spacing between icons
-//       ],
-//     );
-//   }
-//
-//   void _showAddTaskDialog() {
-//     final TaskController taskController = Get.find();
-//     final TextEditingController taskControllerInput = TextEditingController();
-//
-//     showDialog(
-//       context: Get.context!,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text('Add New Task'),
-//           content: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               TextField(
-//                 controller: taskControllerInput,
-//                 decoration: InputDecoration(hintText: 'Enter task'),
-//                 autofocus: true,
-//               ),
-//             ],
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 final task = taskControllerInput.text.trim();
-//                 if (task.isNotEmpty) {
-//                   taskController.addTask(task);
-//                 }
-//                 Get.back(); // Close the dialog
-//               },
-//               child: Text('Save'),
-//             ),
-//             TextButton(
-//               onPressed: () {
-//                 Get.back(); // Close the dialog
-//               },
-//               child: Text('Cancel'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
 import 'package:get/get.dart';
+import 'package:goalsync/controller/task_controller.dart';
+import 'package:goalsync/screens/task_screen.dart';
+import 'package:goalsync/screens/theme.dart';
+import 'package:goalsync/service/drawer.dart';
 import 'package:intl/intl.dart';
-import 'package:tracker/controller/task_controller.dart';
-import 'package:tracker/screens/task_screen.dart';
-import 'package:tracker/screens/theme.dart';
 
 import '../controller/theme_controller.dart';
-import '../service/drawer.dart';
 
 class HabitScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
@@ -250,8 +42,7 @@ class HabitScreen extends StatelessWidget {
 
               return ListView.separated(
                 itemCount: taskController.taskList.length,
-                separatorBuilder: (context, index) =>
-                    SizedBox(height: 16), // Space between items
+                separatorBuilder: (context, index) => SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   return Dismissible(
                     key: ValueKey(taskController.taskList[index]),
@@ -267,98 +58,92 @@ class HabitScreen extends StatelessWidget {
                       taskController.deleteTask(index);
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Neumorphic(
-                              style: neumorphicButtonStyle(
-                                context,
-                                isSelected:
-                                    taskController.isTaskSelected[index],
-                              ),
+                      padding:  EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Container(
+                        height: 50,
+                        child: Row(
+
+                          children: [
+                            Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  _showTaskOptionsDialog(
-                                      context, index, taskController);
+                                  Get.to(TaskScreen(
+                                    taskName: taskController.taskList[index],
+                                    isTaskChecked: true,
+                                    index: index,
+                                  ));
                                 },
                                 child: Container(
                                   padding: EdgeInsets.all(14.0),
                                   constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.75, // Reduce width
-                                  ),
+                                      //maxWidth: 267
+                                      maxWidth: MediaQuery.of(context).size.width * 0.85,
+                                      ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                      color: Theme.of(context).cardColor,
-                                      width: 2,
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/corner (1).png',
+                                      ),
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  child: Text(
-                                    taskController.taskList[index],
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge!
-                                          .color, // Use theme text color
-                                      fontSize: 18,
+                                  child: Padding(
+                                    // Added Padding here
+                                    padding: EdgeInsets.only(
+                                        left: 10.0), // Shift text to the right
+                                    child: Text(
+                                      taskController.taskList[index],
+                                      style: TextStyle(
+                                        color: Colors
+                                            .white, // Change color for better contrast
+                                        fontSize: 18,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          GestureDetector(
+                            SizedBox(width: 1),
+                            GestureDetector(
                               onTap: () {
                                 taskController.toggleTaskSelection(
                                   index,
                                   !taskController.isTaskSelected[index],
                                 );
                               },
-                              child: Neumorphic(
-                                  style: neumorphicButtonStyle(
-                                    context,
-                                    isSelected:
-                                        taskController.isTaskSelected[index],
-                                  ),
-                                  child: Center(
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        // Checkbox background color
-                                        Icon(
-                                          taskController.isTaskSelected[index]
-                                              ? Icons.check_box
-                                              : Icons
-                                                  .check_box_outline_blank, // Unchecked state icon
-                                          color: Theme.of(context).brightness ==
-                                                  Brightness.light
-                                              ? Colors.white
-                                              : Theme.of(context)
-                                                  .cardColor, // Background color for checkbox in dark theme
-                                          size: 24,
-                                        ),
-                                        // Tick color
-                                        if (taskController
-                                            .isTaskSelected[index])
-                                          Icon(
-                                            Icons.check, // Tick icon
-                                            color: Theme.of(context)
-                                                        .brightness ==
-                                                    Brightness.light
-                                                ? Colors.black
-                                                : Colors
-                                                    .white, // Tick color in dark theme
-                                            size: 30,
-                                          ),
-                                      ],
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                            'assets/images/img.png'), // Checkbox image
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ))),
-
-                        ],
+                                  ),
+                                  if (taskController.isTaskSelected[index])
+                                    Container(
+                                      width: 15, // Size for the tick image
+                                      height: 15,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                              'assets/images/img_1.png'), // Tick image
+                                          fit: BoxFit
+                                              .contain, // Ensure the tick fits inside the container
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -412,90 +197,23 @@ class HabitScreen extends StatelessWidget {
     );
   }
 
-  void _showTaskOptionsDialog(
-      BuildContext context, int index, TaskController taskController) {
-    // Get today's date
-    String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Mark Task'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                  'Do you want to mark this task as completed or not completed?'),
-              SizedBox(
-                  height:
-                      16), // Add some space between content and date message
-              Text('Task updated for today: $todayDate',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                // Update task status to completed and navigate to TaskScreen
-                taskController.updateTaskStatus(index, true);
-                print('Task marked as completed for today: $todayDate.');
-
-                // Navigate to TaskScreen
-                Get.off(() => TaskScreen(
-                  taskName: taskController.taskList[index],
-                  isTaskChecked: true,
-                  index:index,
-
-                ));
-              },
-              child: Text('Completed'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Update task status to not completed and navigate to TaskScreen
-                taskController.updateTaskStatus(index, false);
-                print('Task marked as not completed for today: $todayDate.');
-
-                // Navigate to TaskScreen
-                Get.off(() => TaskScreen(
-                  taskName: taskController.taskList[index],
-                  isTaskChecked: false,
-                  index: index,
-                ));
-              },
-              child: Text('Not Completed'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to TaskScreen without changing task status
-                Get.off(() => TaskScreen(
-                  index: index,
-                      taskName: taskController.taskList[index],
-                      isTaskChecked: taskController.isTaskSelected[index],
-                    ));
-              },
-              child: Text('Open Task'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showAddTaskBottomSheet() {
     final TaskController taskController = Get.find();
     final TextEditingController taskControllerInput = TextEditingController();
 
     Get.bottomSheet(
       Container(
-        height: 300, // Set the default height of the bottom sheet
+        height: 300,
         padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Color(0xFF2E2E2E), // Set the background color of the bottom sheet
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)), // Set the top corners to be rounded
+        ),
         child: Column(
           children: [
             Text(
               'Add New Task',
-              style: Theme.of(Get.context!).textTheme.titleLarge,
+              style: Theme.of(Get.context!).textTheme.titleLarge?.copyWith(color: Colors.white), // Adjusted text color for dark theme
             ),
             SizedBox(height: 20),
             Neumorphic(
@@ -504,60 +222,42 @@ class HabitScreen extends StatelessWidget {
                 controller: taskControllerInput,
                 decoration: InputDecoration(
                   hintText: 'Enter task',
+                  hintStyle: TextStyle(color: Colors.white70), // Adjusted hint text color
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16.0),
                 ),
+                style: TextStyle(color: Colors.white), // Adjusted input text color
                 autofocus: true,
               ),
             ),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Save button with Neumorphic style
-                SizedBox(
-                  width: 160, // Adjust width for Save button
-                  child: NeumorphicButton(
-                    style:
-                        neumorphicButtonStyle(Get.context!, isSelected: false),
-                    onPressed: () {
-                      final task = taskControllerInput.text.trim();
-                      if (task.isNotEmpty) {
-                        taskController.addTask(task);
-                      }
-                      Get.back(); // Close the bottom sheet
-                    },
-                    child: Center(
-                      child: Text(
-                        'Save',
-                        style: Theme.of(Get.context!).textTheme.button,
-                      ),
-                    ),
+            SizedBox(
+              width: 160, // Adjust width for Save button
+              child: NeumorphicButton(
+                style: neumorphicButtonStyle(Get.context!, isSelected: false),
+                onPressed: () {
+                  final task = taskControllerInput.text.trim();
+                  if (task.isNotEmpty) {
+                    taskController.addTask(task);
+
+                    // Call addTaskForDate
+                    final taskIndex = taskController.taskList.length - 1;
+                    taskController.addTaskForDate(DateTime.now(), taskIndex);
+                  }
+                  Get.back(); // Close the bottom sheet
+                },
+                child: Center(
+                  child: Text(
+                    'Save',
+                    style: Theme.of(Get.context!).textTheme.labelLarge?.copyWith(color: Colors.white), // Adjusted text color
                   ),
                 ),
-                // Cancel button with Neumorphic style
-                SizedBox(
-                  width: 160, // Adjust width for Cancel button
-                  child: NeumorphicButton(
-                    style:
-                        neumorphicButtonStyle(Get.context!, isSelected: false),
-                    onPressed: () {
-                      Get.back(); // Close the bottom sheet
-                    },
-                    child: Center(
-                      child: Text(
-                        'Cancel',
-                        style: Theme.of(Get.context!).textTheme.button,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
       ),
-      backgroundColor: Theme.of(Get.context!).scaffoldBackgroundColor,
+      backgroundColor: Colors.transparent, // Keep background transparent for effect
     );
   }
 }
