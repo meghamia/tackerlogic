@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tracker/screens/theme.dart';
 
 import 'controller/task_controller.dart';
 import 'controller/theme_controller.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/habit_screen.dart';
+import 'screens/theme.dart'; // Import your theme file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(TaskController()); // Initialize TaskController
+  Get.put(ThemeController()); // Initialize ThemeController
 
   final prefs = await SharedPreferences.getInstance();
   final hasAddedHabit = prefs.getBool('hasAddedHabit') ?? false;
@@ -26,13 +26,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeController themeController = Get.put(ThemeController());
+    final ThemeController themeController = Get.find(); // Get existing ThemeController
 
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: themeController.isDark.value ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeController.isDark.value ? ThemeMode.dark : ThemeMode.light, // Control theme mode
       home: hasAddedHabit ? HabitScreen() : WelcomeScreen(),
     );
   }
