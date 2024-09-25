@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import '../controller/theme_controller.dart';
 
 class HabitScreen extends StatelessWidget {
+  final TextEditingController taskControllerInput = TextEditingController();
+
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -58,11 +60,10 @@ class HabitScreen extends StatelessWidget {
                       taskController.deleteTask(index);
                     },
                     child: Padding(
-                      padding:  EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
-                        height: 50,
+                        height: 60,
                         child: Row(
-
                           children: [
                             Expanded(
                               child: GestureDetector(
@@ -76,27 +77,44 @@ class HabitScreen extends StatelessWidget {
                                 child: Container(
                                   padding: EdgeInsets.all(14.0),
                                   constraints: BoxConstraints(
-                                      //maxWidth: 267
-                                      maxWidth: MediaQuery.of(context).size.width * 0.85,
-                                      ),
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.85,
+
+                                  ),
                                   decoration: BoxDecoration(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Color(0xFFF5F5FA) // Light theme background color
+                                        : Color(0xFF2E2E2E), // Dark theme background color
                                     borderRadius: BorderRadius.circular(6),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/corner (1).png',
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(context).brightness == Brightness.light ? Color(0xFFE0E0E0) // Light shadow for depth in light theme
+                                            : Color(0xFF1E1E1E), // Dark shadow for depth in dark theme
+                                        offset: Offset(6, 6), blurRadius: 12,
                                       ),
-                                      fit: BoxFit.cover,
-                                    ),
+                                      BoxShadow(
+                                        color: Theme.of(context).brightness == Brightness.light
+                                            ? Color(0xFFFFFFFF).withOpacity(
+                                                0.4) // Light shadow for an embedded effect in light theme
+                                            : Color(
+                                                0xFF3E3E3E), // Light shadow for an embedded effect in dark theme
+                                        offset: Offset(-6, -6),
+                                        blurRadius: 12,
+                                      ),
+                                    ],
                                   ),
                                   child: Padding(
-                                    // Added Padding here
-                                    padding: EdgeInsets.only(
-                                        left: 10.0), // Shift text to the right
+                                    padding: EdgeInsets.only(left: 10.0), // Shift text to the right
                                     child: Text(
                                       taskController.taskList[index],
                                       style: TextStyle(
-                                        color: Colors
-                                            .white, // Change color for better contrast
+                                        color: Theme.of(context).brightness ==
+                                                Brightness.light
+                                            ? Colors
+                                                .black // Text color is black in light theme
+                                            : Colors
+                                                .white, // Text color is white in dark theme
                                         fontSize: 18,
                                       ),
                                     ),
@@ -104,7 +122,7 @@ class HabitScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 1),
+                            SizedBox(width: 10),
                             GestureDetector(
                               onTap: () {
                                 taskController.toggleTaskSelection(
@@ -116,29 +134,51 @@ class HabitScreen extends StatelessWidget {
                                 alignment: Alignment.center,
                                 children: [
                                   Container(
-                                    width: 60,
-                                    height: 60,
                                     decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/images/img.png'), // Checkbox image
-                                        fit: BoxFit.cover,
-                                      ),
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? Color(
+                                              0xFFF5F5FA) // Light theme background color
+                                          : Color(
+                                              0xFF3E3E3E), // Dark theme background color
+                                      borderRadius: BorderRadius.circular(
+                                          8), // Ensure this matches your neumorphic style's border radius
+                                      boxShadow: getCurrentThemeBoxShadows(
+                                          context), // Use the dynamic box shadows based on the theme
                                     ),
-                                  ),
-                                  if (taskController.isTaskSelected[index])
-                                    Container(
-                                      width: 15, // Size for the tick image
-                                      height: 15,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/img_1.png'), // Tick image
-                                          fit: BoxFit
-                                              .contain, // Ensure the tick fits inside the container
+                                    child: Neumorphic(
+                                      style: checkBoxStyle(context,
+                                          isSelected: taskController
+                                              .isTaskSelected[index]),
+                                      child: SizedBox(
+                                        width:
+                                            35, // Set width for the container
+                                        height:
+                                            35, // Set height for the container
+                                        child: Center(
+                                          child: IconButton(
+                                            icon: Icon(
+                                              taskController.isTaskSelected[index] ? Icons.check // Show tick icon when selected
+                                                  : Icons.check_box_outline_blank,
+                                              color: taskController.isTaskSelected[index] ? (Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white) // Tick color is white in dark theme
+                                                  : Colors.transparent, // Empty checkbox remains transparent when not selected
+                                            ),
+
+                                            iconSize:
+                                                20, // Adjust the size of the tick icon
+                                            onPressed: () {
+                                              taskController
+                                                  .toggleTaskSelection(
+                                                      index,
+                                                      !taskController
+                                                              .isTaskSelected[
+                                                          index]);
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -183,7 +223,7 @@ class HabitScreen extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-                _showAddTaskBottomSheet();
+                _showAddTaskBottomSheet(context);
               },
               icon: Icon(
                 Icons.add,
@@ -197,67 +237,79 @@ class HabitScreen extends StatelessWidget {
     );
   }
 
-  void _showAddTaskBottomSheet() {
+  void _showAddTaskBottomSheet(BuildContext context) {
     final TaskController taskController = Get.find();
     final TextEditingController taskControllerInput = TextEditingController();
 
     Get.bottomSheet(
-      Container(
-        height: 300,
-        padding: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Color(0xFF2E2E2E), // Set the background color of the bottom sheet
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)), // Set the top corners to be rounded
-        ),
-        child: Column(
-          children: [
-            Text(
-              'Add New Task',
-              style: Theme.of(Get.context!).textTheme.titleLarge?.copyWith(color: Colors.white), // Adjusted text color for dark theme
-            ),
-            SizedBox(height: 20),
-            Neumorphic(
-              style: neumorphicBottomSheetStyle(Get.context!),
-              child: TextField(
-                controller: taskControllerInput,
-                decoration: InputDecoration(
-                  hintText: 'Enter task',
-                  hintStyle: TextStyle(color: Colors.white70), // Adjusted hint text color
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(16.0),
-                ),
-                style: TextStyle(color: Colors.white), // Adjusted input text color
-                autofocus: true,
+      ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+        child: Container(
+          height: 300,
+          padding: EdgeInsets.all(16.0),
+          color: Theme.of(context).brightness == Brightness.light
+              ? Color(0xFFF5F5FA) // Example light theme color
+              : Color(0xFF2E2E2E), // Dark theme background color
+          child: Column(
+            children: [
+              Text(
+                'Add New Task',
+                style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black // Text color for light theme
+                        : Colors.white, // Text color for dark theme
+                    fontSize: 19,
+                    fontWeight: FontWeight.w500),
               ),
-            ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: 160, // Adjust width for Save button
-              child: NeumorphicButton(
-                style: neumorphicButtonStyle(Get.context!, isSelected: false),
-                onPressed: () {
-                  final task = taskControllerInput.text.trim();
-                  if (task.isNotEmpty) {
-                    taskController.addTask(task);
-
-                    // Call addTaskForDate
-                    final taskIndex = taskController.taskList.length - 1;
-                    taskController.addTaskForDate(DateTime.now(), taskIndex);
-                  }
-                  Get.back(); // Close the bottom sheet
-                },
-                child: Center(
-                  child: Text(
-                    'Save',
-                    style: Theme.of(Get.context!).textTheme.labelLarge?.copyWith(color: Colors.white), // Adjusted text color
+              SizedBox(height: 60),
+              neumorphicTextFormField(Get.context!,
+                  taskControllerInput), // Using your custom widget
+              SizedBox(height: 60),
+              SizedBox(
+                width: 160,
+                child: Neumorphic(
+                  style: neumorphicButtonStyle(Get.context!,
+                      isSelected: false), // Apply neumorphic style
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final task = taskControllerInput.text.trim();
+                      if (task.isNotEmpty) {
+                        taskController.addTask(task);
+                        final taskIndex = taskController.taskList.length - 1;
+                        taskController.addTaskForDate(
+                            DateTime.now(), taskIndex);
+                      }
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors
+                          .transparent, // Make button background transparent
+                      shadowColor:
+                          Colors.transparent, // Disable default button shadows
+                      disabledForegroundColor: Colors.transparent
+                          .withOpacity(0.38), // Transparent disabled foreground
+                      disabledBackgroundColor: Colors.transparent
+                          .withOpacity(0.12), // Transparent disabled background
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Add',
+                        style: TextStyle(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? Colors.black // Text color for light theme
+                                  : Colors.white, // Text color for dark theme
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      backgroundColor: Colors.transparent, // Keep background transparent for effect
+      backgroundColor: Colors.transparent,
     );
   }
 }
