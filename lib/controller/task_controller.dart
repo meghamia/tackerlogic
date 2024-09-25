@@ -9,7 +9,7 @@ class TaskController extends GetxController {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   var taskList = <String>[].obs;
   var isTaskSelected = <bool>[].obs;
-  // List<double> progressData = List<double>.filled(7, 0.0);
+   List<double> progressData = List<double>.filled(7, 0.0);
   var completionDates = <String, bool>{}.obs;
   var taskDateMapping = <String, List<int>>{}.obs;
   var taskIdList = <int>[].obs;
@@ -33,11 +33,15 @@ class TaskController extends GetxController {
       taskList.value = tasks.map((task) => task[DatabaseHelper.columnTask] as String).toList();
       taskIdList.value = tasks.map((task) => task[DatabaseHelper.columnId] as int).toList();
       isTaskSelected.value = List<bool>.filled(taskList.length, false);
+
       String trackedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
-      taskIdList.asMap().entries.forEach((MapEntry<int, int> entry) async {
-        bool isTracked = await _databaseHelper.isTaskTrackedForDate(entry.value, trackedDate);
-        isTaskSelected[entry.key] = isTracked;
-      });
+
+      // taskIdList.asMap().entries.forEach((MapEntry<int, int> entry) async {
+      //   bool isTracked = await _databaseHelper.isTaskTrackedForDate(entry.value, trackedDate);
+      //   isTaskSelected[entry.key] = isTracked;
+      // });
+
+
       for (var i = 0; i < taskIdList.length; i++) {
         bool isTracked = await _databaseHelper.isTaskTrackedForDate(taskIdList[i], trackedDate);
         isTaskSelected[i] = isTracked;
@@ -171,7 +175,7 @@ class TaskController extends GetxController {
       int taskId = taskIdList[index];
 
       await _databaseHelper.deleteTask(taskId);
-      taskList.removeAt(index);
+      //taskList.removeAt(index);
       isTaskSelected.removeAt(index);
     } catch (e) {
       print("Error deleting task: $e");
@@ -221,18 +225,70 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<List<double>> fetchProgressDataForTrackedDate(
-      String trackedDate) async {List<double> progressData = List.filled(7, 0.0);
+  // Future<List<double>> fetchProgressDataForTrackedDate(String trackedDate,int index) async {
+  //   List<double> progressData = List.filled(7, 0.0);
+  //
+  //   DateTime baseDate = DateFormat('dd-MM-yyyy').parse(trackedDate);
+  //
+  //   DateTime startDate = baseDate.subtract(Duration(days: baseDate.weekday - 1)); // Monday
+  //   DateTime endDate = startDate.add(Duration(days: 6)); // Sunday
+  //
+  //   for (int i = 0; i < 7; i++) {
+  //     DateTime date = startDate.add(Duration(days: i));
+  //     String trackedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  //     int taskId = taskIdList[index];
+  //
+  //
+  //     bool isTaskTracked = await _databaseHelper.isTaskTrackedForDate(taskId, trackedDate);
+  //
+  //     progressData[i] = isTaskTracked ? 6.0 : 0.0;
+  //   }
+  //
+  //   return progressData;
+  // }
 
-    for (int i = 0; i < 7; i++) {
-      DateTime date =  DateFormat('dd-MM-yyyy').parse(trackedDate).subtract(Duration(days: i));
-      String dateString = DateFormat('dd-MM-yyyy').format(date);
 
-      bool isTaskCompleted = completionDates[dateString] ?? false;
-      progressData[i] = isTaskCompleted ? 1.0 : 0.0;
-    }
+
+
+  Future<List<double>> fetchProgressDataForTrackedDate(String trackedDate, int index) async {
+    List<double> progressData = List.filled(7, 0.0);
+    int taskId = taskIdList[index];
+    print('Fetching progress data for Task ID: $taskId on Date: $trackedDate');
+
+    bool isTracked = await _databaseHelper.isTaskTrackedForDate(taskId, trackedDate);
+    progressData[0] = isTracked ? 6.0 : 0.0;
+
     return progressData;
   }
+
+  Future<List<double>> fetchProgressDataForPreviousWeek(int index) async {
+    List<double> progressData = List.filled(7, 0.0);
+
+
+    DateTime now = DateTime.now();
+
+
+    DateTime startDate = now.subtract(Duration(days: now.weekday + 6)); // Monday of last week
+    DateTime endDate = startDate.add(Duration(days: 6)); // Sunday of last week
+
+    int taskId = taskIdList[index];
+
+    print('Fetching progress data for Task ID: $taskId from ${DateFormat('dd-MM-yyyy').format(startDate)} to ${DateFormat('dd-MM-yyyy').format(endDate)}');
+
+    for (int i = 0; i < 7; i++) {
+      DateTime date = startDate.add(Duration(days: i));
+      String trackedDate = DateFormat('dd-MM-yyyy').format(date);
+
+
+      bool isTracked = await _databaseHelper.isTaskTrackedForDate(taskId, trackedDate);
+
+      progressData[i] = isTracked ? 6.0 : 0.0;
+    }
+
+    return progressData;
+  }
+
+
   Future<void> updateTaskStatus(int index, bool isTracked) async {
     try {
       if (index < 0 || index >= taskList.length) {
@@ -294,7 +350,7 @@ class TaskController extends GetxController {
   //     final today = DateTime.now();
   //     final startDate = today.subtract(Duration(days: today.weekday - 1)); // Monday of the current week
   //     final endDate = startDate.add(Duration(days: days - 1)); // End of the range
-  //
+
   //     final tasks = await _databaseHelper.getTasks(); // Fetch tasks from the database
   //     List<double> progressData = List<double>.filled(days, 0.0); // Initialize progress data with zeros
   //
@@ -363,6 +419,9 @@ class TaskController extends GetxController {
   //   print('Task marked as completed for today: $dateKey.');
   // }
 
+
+
+
   void addTaskForDate(DateTime date, int taskIndex) {
     final dateKey = DateFormat('dd-MM-yyyy').format(date);
     if (taskDateMapping.containsKey(dateKey)) {
@@ -371,6 +430,8 @@ class TaskController extends GetxController {
       taskDateMapping[dateKey] = [taskIndex];
     }
   }
+
+
 
   // List<int> getTasksForDate(DateTime date) {
   //   final dateKey = DateFormat('yyyy-MM-dd').format(date);
