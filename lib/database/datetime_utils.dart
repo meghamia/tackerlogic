@@ -1,4 +1,4 @@
-// date_time_utils.dart for timestamp
+// date_time_utils.dart for time
 
 extension DateTimeUtils on DateTime {
   DateTime startOfDay() {
