@@ -1,10 +1,5 @@
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
@@ -15,22 +10,15 @@ final ThemeData lightTheme = ThemeData(
   cardColor: Colors.white,
   appBarTheme: AppBarTheme(
     backgroundColor: Color(0xFFF5F5FA), // AppBar background color
-    iconTheme: IconThemeData(color: Colors.black), // Change icon color to black for light theme
+    iconTheme: IconThemeData(
+        color: Colors.black), // Change icon color to black for light theme
   ),
-  textTheme: TextTheme(
-    bodyText1: TextStyle(color: Colors.black), // Body text color
-    bodyText2: TextStyle(color: Colors.black), // Body text color
-    headline6: TextStyle(color: Colors.black), // Headline color
-    // Add any other text styles you need, like button text or captions
-    button: TextStyle(color: Colors.white), // Button text color
-  ),
+
   buttonTheme: ButtonThemeData(
     buttonColor: Color(0xFF333333), // Default button color
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
   ),
 );
-
-
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
@@ -40,120 +28,125 @@ final ThemeData darkTheme = ThemeData(
     elevation: 0,
     iconTheme: IconThemeData(color: Colors.white),
   ),
-  textTheme: TextTheme(
-    bodyText1: TextStyle(color: Colors.white),
-    bodyText2: TextStyle(color: Colors.white),
-    headline6: TextStyle(color: Colors.white),
-  ),
+
   buttonTheme: ButtonThemeData(
     buttonColor: Color(0xFF333333), // Default button color
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
   ),
 );
 
-
 NeumorphicStyle neumorphicAppBarStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
-    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF3E3E3E), // Background color based on theme
-    depth: 4, // Lower depth for AppBar to appear slightly raised
+    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF3E3E3E),
+    depth: 4,
     intensity: 0.7,
     lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Color(0xFFBDBDBD) : Color(0xFF1E1E1E), // Light or dark shadow
-    shadowLightColor: isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Lighter shadows
+    shadowDarkColor: isLightTheme
+        ? Color(0xFFBDBDBD)
+        : Color(0xFF1E1E1E), // Light or dark shadow
+    shadowLightColor:
+        isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Lighter shadows
     shape: NeumorphicShape.convex,
     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.only(
-      bottomLeft: Radius.circular(10), // Rounded only at the bottom
+      bottomLeft: Radius.circular(10),
       bottomRight: Radius.circular(10),
     )),
   );
 }
 
-
-
-
-
-NeumorphicStyle neumorphicButtonStyle(BuildContext context, {required bool isSelected}) {
+NeumorphicStyle neumorphicButtonStyle(BuildContext context,
+    {required bool isSelected}) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
-    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF3E3E3E), // Light theme background color
+    color: isLightTheme
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF3E3E3E), // Light theme background color
     depth: isSelected ? -7 : 7,
     intensity: 0.9,
-    lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Color(0xFFBDBDBD) : Color(0xFF1E1E1E), // Lighter shadow for light theme
-    shadowLightColor: isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Light shadow for light theme
+    lightSource: LightSource.topRight,
+    shadowDarkColor: isLightTheme
+        ? Color(0xFFBDBDBD)
+        : Color(0xFF1E1E1E), // Lighter shadow for light theme
+    shadowLightColor: isLightTheme
+        ? Color(0xFFFFFFFF)
+        : Color(0xFF3E3E3E), // Light shadow for light theme
     shape: NeumorphicShape.concave,
-    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)), // Add rounded corners
+    boxShape: NeumorphicBoxShape.roundRect(
+        BorderRadius.circular(12)), // Add rounded corners
   );
 }
 
-
-
-
-NeumorphicStyle drawerButtonStyle(BuildContext context, {required bool isSelected}) {
+NeumorphicStyle drawerButtonStyle(BuildContext context,
+    {required bool isSelected}) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
-    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF3E3E3E), // Light theme background color
+    color: isLightTheme
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF3E3E3E), // Light theme background color
     depth: isSelected ? -7 : 7,
     intensity: 0.9,
     lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Color(0xFFBDBDBD) : Color(0xFF1E1E1E), // Lighter shadow for light theme
-    shadowLightColor: isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Light shadow for light theme
+    shadowDarkColor: isLightTheme
+        ? Color(0xFFBDBDBD)
+        : Color(0xFF1E1E1E), // Lighter shadow for light theme
+    shadowLightColor: isLightTheme
+        ? Color(0xFFFFFFFF)
+        : Color(0xFF3E3E3E), // Light shadow for light theme
     shape: NeumorphicShape.concave,
-    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)), // Add rounded corners
+    boxShape: NeumorphicBoxShape.roundRect(
+        BorderRadius.circular(12)), // Add rounded corners
   );
 }
 
-
-
-
-
-
-
-NeumorphicStyle checkBoxStyle(BuildContext context, {required bool isSelected}) {
+NeumorphicStyle checkBoxStyle(BuildContext context,
+    {required bool isSelected}) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
-    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF3E3E3E), // Light theme background color
+    color: isLightTheme
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF3E3E3E), // Light theme background color
     depth: isSelected ? 7 : -7,
     intensity: 0.2,
     lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Color(0xFFBDBDBD) : Color(0xFF1E1E1E), // Lighter shadow for light theme
-    shadowLightColor: isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Light shadow for light theme
+    shadowDarkColor: isLightTheme
+        ? Color(0xFFBDBDBD)
+        : Color(0xFF1E1E1E), // Lighter shadow for light theme
+    shadowLightColor: isLightTheme
+        ? Color(0xFFFFFFFF)
+        : Color(0xFF3E3E3E), // Light shadow for light theme
     shape: NeumorphicShape.convex,
     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(3)),
-
-
   );
 }
-
 
 List<BoxShadow> darkThemeBoxShadows = [
   BoxShadow(
     color: Color(0xFF1E1E1E), // Dark shadow
-    offset: Offset(4, 4), // Positive offset for the outer shadow
-    blurRadius: 8, // Blur radius for the outer shadow
-    spreadRadius: 0, // Spread radius for the outer shadow
+    offset: Offset(4, 4), // Positive outer shadow
+    blurRadius: 8, // Blur outer shadow
+    spreadRadius: 0, // Spread outer shadow
   ),
   BoxShadow(
-    color: Color(0xFF4D4D4D).withOpacity(0.25), // Light shadow (with 25% opacity)
-    offset: Offset(4, 4), // Negative offset for the inner shadow
-    blurRadius: 2, // Blur radius for the inner shadow
-    spreadRadius: 1, // Spread radius for the inner shadow
+    color: Color(0xFF4D4D4D).withOpacity(0.25),
+    offset: Offset(4, 4), // Negative inner shadow
+    blurRadius: 2, // Blur  inner shadow
+    spreadRadius: 1, // Spread  inner shadow
   ),
   BoxShadow(
     color: Color(0xFF1E1E1E), // Dark shadow
-    offset: Offset(10, 10), // Positive offset for the outer shadow
-    blurRadius: 10, // Blur radius for the outer shadow
-    spreadRadius: 1, // Spread radius for the outer shadow
+    offset: Offset(10, 10), // Positive  outer shadow
+    blurRadius: 10, // Blur  outer shadow
+    spreadRadius: 1, // Spread  outer shadow
   ),
   BoxShadow(
     color: Color(0xFF3C3C3C), // Light shadow
-    offset: Offset(10, -10), // Negative offset for the inner shadow
-    blurRadius: 10, // Blur radius for the inner shadow
+    offset: Offset(10, -10), // Negative inner shadow
+    blurRadius: 10, // Blur inner shadow
     spreadRadius: 1,
   ),
 ];
@@ -161,158 +154,82 @@ List<BoxShadow> darkThemeBoxShadows = [
 List<BoxShadow> lightThemeBoxShadows = [
   BoxShadow(
     color: Color(0xFFFFFFFF), // Light shadow
-    offset: Offset(-10, -10), // Negative offset for the outer shadow
-    blurRadius: 20, // Blur radius for the outer shadow
-    spreadRadius: 0, // Spread radius for the outer shadow
+    offset: Offset(-10, -10), // Negative outer shadow
+    blurRadius: 20, // Blur outer shadow
+    spreadRadius: 0, // Spread  outer shadow
   ),
   BoxShadow(
-    color: Color(0xFFAAAACC).withOpacity(0.5), // Light shadow (with 50% opacity)
-    offset: Offset(10, 10), // Positive offset for the inner shadow
-    blurRadius: 20, // Blur radius for the inner shadow
-    spreadRadius: 0, // Spread radius for the inner shadow
+    color: Color(0xFFAAAACC).withOpacity(0.5), // Light shadow
+    offset: Offset(10, 10), // Positive inner shadow
+    blurRadius: 20, // Blur inner shadow
+    spreadRadius: 0, // Spread  inner shadow
   ),
   BoxShadow(
-    color: Color(0xFFAAAACC).withOpacity(0.25), // Light shadow (with 25% opacity)
+    color:
+        Color(0xFFAAAACC).withOpacity(0.25), // Light shadow (with 25% opacity)
     offset: Offset(5, 5), // Positive offset for the shadow
-    blurRadius: 10, // Blur radius for the shadow
-    spreadRadius: 0, // Spread radius for the shadow
+    blurRadius: 10,
+    spreadRadius: 0,
   ),
   BoxShadow(
-    color: Color(0xFFFFFFFF).withOpacity(0.5), // Light shadow with opacity
-    offset: Offset(-5, -5), // Negative offset for the shadow
-    blurRadius: 10, // Blur radius for the shadow
-    spreadRadius: 0, // Spread radius for the shadow
+    color: Color(0xFFFFFFFF).withOpacity(0.5),
+    offset: Offset(-5, -5),
+    blurRadius: 10,
+    spreadRadius: 0,
   ),
 ];
 
-// Function to get the appropriate shadows based on the theme
 List<BoxShadow> getCurrentThemeBoxShadows(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
   return isLightTheme ? lightThemeBoxShadows : darkThemeBoxShadows;
-
 }
-
-//
-//
-// TextStyle neumorphicButtonTextStyle(BuildContext context) {
-//   return Theme.of(context).textTheme.bodyLarge!.copyWith(
-//     color: Colors.white, // Change text color to white for better contrast
-//     fontSize: 16, // You can adjust the font size as needed
-//     fontWeight: FontWeight.bold, // Optional: set to bold for emphasis
-//   );
-// }
-
-
-
-
-
 
 NeumorphicStyle neumorphicBottomSheetStyle(BuildContext context) {
   return NeumorphicStyle(
     color: Theme.of(context).brightness == Brightness.light
-        ? Color(0xFFF5F5FA) : Color(0xFF2E2E2E),
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF2E2E2E),
     intensity: 0.8,
     lightSource: LightSource.top,
     shadowDarkColor: Theme.of(context).brightness == Brightness.light
-        ? Color(0xFFFFFFFF).withOpacity(0.4) : Color(0xFF1E1E1E),
+        ? Color(0xFFFFFFFF).withOpacity(0.4)
+        : Color(0xFF1E1E1E),
     shadowLightColor: Theme.of(context).brightness == Brightness.light
-        ? Color(0xFFAAAAAC).withOpacity(0.5) : Color(0xFF3E3E3E),
+        ? Color(0xFFAAAAAC).withOpacity(0.5)
+        : Color(0xFF3E3E3E),
     shape: NeumorphicShape.convex,
   );
 }
 
-// Widget neumorphicTextFormField(BuildContext context, TextEditingController controller) {
-//   Offset offsetDistance = Offset(10, 10);
-//   double blurRadius = 8.0;
-//
-//   return Center(
-//     child: AnimatedContainer(
-//       duration: Duration(milliseconds: 200), // Smooth animation
-//       width: 310,
-//       height: 55,
-//       decoration: BoxDecoration(
-//         color: Theme.of(context).brightness == Brightness.light
-//             ? Color(0xFFF5F5FA) // Light theme background color
-//             : Color(0xFF3E3E3E), // Dark theme background color
-//         borderRadius: BorderRadius.circular(11),
-//         boxShadow: [
-//           // Inner shadow for light theme
-//           BoxShadow(
-//             // color: Theme.of(context).brightness == Brightness.light
-//             //     ? Color(0xFFFFFFFF).withOpacity(0.5) // Inner shadow color for light theme
-//             //     : Colors.transparent, // No inner shadow for dark theme
-//             offset: -Offset(7, 7), // Negative offset for inner shadow
-//             blurRadius: blurRadius,
-//             spreadRadius: 1,
-//           ),
-//           // Outer shadow
-//           BoxShadow(
-//             color: Theme.of(context).brightness == Brightness.light
-//                 ? Color(0xFFAAAAAC).withOpacity(0.5) // Light shadow for light theme
-//                 : Color(0xFF3E3E3E).withOpacity(0.5), // Dark shadow for dark theme
-//             offset: -offsetDistance, // Positive offset for outer shadow
-//             blurRadius: blurRadius,
-//             spreadRadius: 0,
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }
-
-
-
-//
-// TextStyle getIconButtonStyle(BuildContext context) {
-//   return Theme.of(context).textTheme.bodyLarge!.copyWith(
-//     fontSize: 18,
-//     fontWeight: FontWeight.w400,
-//
-//   );
-// }
-
-
-
-
-
-// This widget is similar to NeumorphicTextFormField but only displays inner shadow without any form fields
 BoxDecoration taskSelectedStyle({required bool isSelected}) {
   Offset offsetDistance = Offset(30, 30); // Distance for the shadow offset
   double blurRadius = 37.0; // Blurriness of the shadow
 
   return BoxDecoration(
-    // color: Color(0xFF3E3E3E), // Neumorphic background color
-    //borderRadius: BorderRadius.circular(11), // Rounded corners
-    // boxShadow: [
-    //   BoxShadow(
-    //     color: Color(0xFF1E1E1E).withOpacity(0.9), // Dark shadow
-    //     offset: offsetDistance, // Negative offset for inner shadow
-    //     blurRadius: blurRadius,
-    //     spreadRadius: -10,
-    //   ),
-    //   BoxShadow(
-    //     color: Color(0xFF3E3E3E).withOpacity(0.3), // Light shadow
-    //     offset: offsetDistance, // Positive offset for outer shadow
-    //     blurRadius: blurRadius,
-    //     spreadRadius: -100,
-    //   ),
-    // ],
-  );
+      // color: Color(0xFF3E3E3E), // Neumorphic background color
+      //borderRadius: BorderRadius.circular(11), // Rounded corners
+      // boxShadow: [
+      //   BoxShadow(
+      //     color: Color(0xFF1E1E1E).withOpacity(0.9), // Dark shadow
+      //     offset: offsetDistance, // Negative offset for inner shadow
+      //     blurRadius: blurRadius,
+      //     spreadRadius: -10,
+      //   ),
+      //   BoxShadow(
+      //     color: Color(0xFF3E3E3E).withOpacity(0.3), // Light shadow
+      //     offset: offsetDistance, // Positive offset for outer shadow
+      //     blurRadius: blurRadius,
+      //     spreadRadius: -100,
+      //   ),
+      // ],
+      );
 }
-
-
-
-
-
-
-
 
 TextStyle getDrawerButtonTextStyle(BuildContext context) {
   return TextStyle(
     color: Theme.of(context).textTheme.bodyLarge?.color,
     fontSize: 20,
     fontWeight: FontWeight.w400,
-
   );
 }
 
@@ -329,45 +246,60 @@ NeumorphicStyle neumorphicToggleButtonStyle(BuildContext context) {
   );
 }
 
-
 Widget neumorphicGraphContainer(BuildContext context, {required Widget child}) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return Container(
     decoration: BoxDecoration(
-      color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF333333), // Background color based on theme
-      borderRadius: BorderRadius.circular(11), // Same as NeumorphicBoxShape border radius
-      boxShadow: isLightTheme ? lightThemeBoxShadows : darkThemeBoxShadows, // Apply shadows based on theme
+      color: isLightTheme
+          ? Color(0xFFF5F5FA)
+          : Color(0xFF333333), // Background color based on theme
+      borderRadius:
+          BorderRadius.circular(11), // Same as NeumorphicBoxShape border radius
+      boxShadow: isLightTheme
+          ? lightThemeBoxShadows
+          : darkThemeBoxShadows, // Apply shadows based on theme
     ),
     child: Neumorphic(
       style: NeumorphicStyle(
-        color: Colors.transparent, // Transparent to see the BoxDecoration background
+        color: Colors
+            .transparent, // Transparent to see the BoxDecoration background
         depth: 10,
         intensity: 0.2,
         lightSource: LightSource.topLeft,
         shadowDarkColor: isLightTheme ? Color(0xFF1E1E1E) : Color(0xFF1E1E1E),
         shadowLightColor: isLightTheme ? Color(0xFF3E3E3E) : Color(0xFF3E3E3E),
         shape: NeumorphicShape.convex,
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(11)), // Rounded corners
+        boxShape: NeumorphicBoxShape.roundRect(
+            BorderRadius.circular(11)), // Rounded corners
       ),
       child: child, // Pass child widget here
     ),
   );
 }
+
 NeumorphicStyle getCalendarContainerStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
-    color: isLightTheme ? Color(0xFFF5F5FA) : Color(0xFF333333), // Light theme color and dark theme color
+    color: isLightTheme
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF333333), // Light theme color and dark theme color
     depth: 10,
     intensity: 0.8,
     lightSource: LightSource.topLeft,
-    shadowDarkColor: isLightTheme ? Color(0xFFBDBDBD) : Color(0xFF1E1E1E), // Shadow color based on theme
-    shadowLightColor: isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Shadow color based on theme
+    shadowDarkColor: isLightTheme
+        ? Color(0xFFBDBDBD)
+        : Color(0xFF1E1E1E), // Shadow color based on theme
+    shadowLightColor: isLightTheme
+        ? Color(0xFFFFFFFF)
+        : Color(0xFF3E3E3E), // Shadow color based on theme
     shape: NeumorphicShape.convex,
-    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.all(Radius.circular(20))), // Border radius
+    boxShape: NeumorphicBoxShape.roundRect(
+        BorderRadius.all(Radius.circular(20))), // Border radius
   );
 }
+
 TextStyle HeadingStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
@@ -379,8 +311,6 @@ TextStyle HeadingStyle(BuildContext context) {
     height: 1.2,
   );
 }
-
-
 
 TextStyle subheadingStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -406,8 +336,6 @@ TextStyle titleStyle(BuildContext context) {
   );
 }
 
-
-
 TextStyle drawerTextStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
@@ -416,10 +344,9 @@ TextStyle drawerTextStyle(BuildContext context) {
     fontWeight: FontWeight.w500,
     fontFamily: 'Inter-Medium.otf',
     color: isLightTheme ? Colors.black : Colors.white,
-    height: 16.94/14,
+    height: 16.94 / 14,
   );
 }
-
 
 Widget taskBackgroundImage(BuildContext context, double height) {
   final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -432,7 +359,6 @@ Widget taskBackgroundImage(BuildContext context, double height) {
     width: double.infinity,
     fit: BoxFit.cover,
   );
-
 }
 
 Widget addButton(BuildContext context, VoidCallback onPressed) {
@@ -463,16 +389,19 @@ Widget addButton(BuildContext context, VoidCallback onPressed) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+NeumorphicStyle neumorphicDropDown(BuildContext context) {
+  return NeumorphicStyle(
+    color: Theme.of(context).brightness == Brightness.light
+        ? Color(0xFFF5F5FA)
+        : Color(0xFF2E2E2E),
+    intensity: 0.8,
+    lightSource: LightSource.top,
+    shadowDarkColor: Theme.of(context).brightness == Brightness.light
+        ? Color(0xFFFFFFFF).withOpacity(0.4)
+        : Color(0xFF1E1E1E),
+    shadowLightColor: Theme.of(context).brightness == Brightness.light
+        ? Color(0xFFAAAAAC).withOpacity(0.5)
+        : Color(0xFF3E3E3E),
+    shape: NeumorphicShape.convex,
+  );
+}
