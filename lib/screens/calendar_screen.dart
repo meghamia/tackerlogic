@@ -2,36 +2,48 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
+import 'package:goalsync/screens/progress_screen.dart';
+import 'package:goalsync/screens/task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../controller/task_controller.dart';
 import 'theme.dart';
 
-
 class MyCalendar extends StatelessWidget {
+  final int taskId;
+  final String taskName;
+  final int index;
+
+  MyCalendar({
+    required this.taskId,
+    required this.taskName,
+    required this.index
+  });
   @override
   Widget build(BuildContext context) {
     final TaskController taskController = Get.put(TaskController());
     final ThemeData themeData = Theme.of(context);
     final isLightTheme = themeData.brightness == Brightness.light;
+    DateTime startDate = DateTime.now().subtract(Duration(days: 6));
+    DateTime endDate = DateTime.now();
 
+    taskController.fetchProgressDataForDateRange(startDate, endDate, taskId);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Neumorphic(
-          style: neumorphicButtonStyle(context, isSelected: false),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.transparent, // Transparent background
-              borderRadius: BorderRadius.circular(10), // Rounded corners
-            ),
-            child: AppBar(
-              title: const Text("Calendar"),
-              centerTitle: true,
-              iconTheme: IconThemeData(
-                  color: isLightTheme ? Colors.black : Colors.white),
-            ),
+          style: neumorphicAppBarStyle(context),
+          child: AppBar(
+            title: Text(taskName, style: HeadingStyle(context)),
+
+            // title: Text(
+            //   "Calendar",
+            //   style: HeadingStyle(context),
+            // ),
+            centerTitle: true,
+            iconTheme: IconThemeData(
+                color: isLightTheme ? Colors.black : Colors.white),
           ),
         ),
       ),
@@ -40,78 +52,99 @@ class MyCalendar extends StatelessWidget {
 
         return ListView(
           children: [
+            SizedBox(
+              height: 20,
+            ),
             Column(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(11), // Match this with your neumorphicGraphContainer's radius
-
+                  borderRadius: BorderRadius.circular(11),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Container(
-                      width: 310,
+                      width: 390,
                       height: 70,
-
-                          child: neumorphicGraphContainer(
-                            context,
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  // Simple text for Tracker
-                                  SizedBox(width: 24,),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Get.back(); // Navigate back to TaskScreen
-                                    },
-                                    child: Text(
-                                      'Tracker', // Simple text for Tracker button
-                                      style: getDrawerButtonTextStyle(context),
-                                    ),
-                                  ),
-                                  SizedBox(width: 14,),
-                                  Container(
-                                    decoration: taskSelectedStyle(isSelected: true), // Use the custom style
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Image.asset(
-                                          Theme.of(context).brightness == Brightness.light
-                                              ? 'assets/images/img_5.png' // Path to light theme image
-                                              : 'assets/images/img_4.png', // Default dark theme image
-                                          width: 150, // Match the container's width
-                                          height: 48, // Match the container's height
-                                          fit: BoxFit.cover, // Adjust the image to cover the container
-                                        ),
-
-                                        Text(
-                                          'Insights',
-                                          style: getDrawerButtonTextStyle(context), // Custom text style
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                      child: neumorphicGraphContainer(
+                        context,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Adjust to place buttons properly
+                            children: [Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(() => TaskScreen(
+                                    taskName: taskController.taskList[index],
+                                    isTaskChecked: true,
+                                    index: index,
+                                    taskId: taskController.taskIdList[index],
+                                  ));
+                                },
+                                child: Text(
+                                  'Tracker',
+                                  style: subheadingStyle(context),
+                                ),
                               ),
-                            ),
+                              // Add Spacer to center the Insights button
+                              Spacer(),
+                              Container(
+                                decoration: taskSelectedStyle(isSelected: true), // Use the custom style
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      Theme.of(context).brightness == Brightness.light
+                                          ? 'assets/images/img_5.png'
+                                          : 'assets/images/img_4.png',
+                                      width: 150,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    Text(
+                                      'Insights',
+                                      style: subheadingStyle(context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Add Spacer to push Progress to the right
+                              Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(() => ProgressScreen(
+                                    taskName: taskController.taskList[index],
+                                    index: index,
+                                    taskId: taskController.taskIdList[index],
+                                    isTaskChecked: true,
+
+
+                                  ));
+                                },
+                                child: Text(
+                                  'Progress',
+                                  style: subheadingStyle(context),
+                                ),
+                              ),
+                              Spacer(),
+                            ],
                           ),
 
-
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 40),
+            SizedBox(height: 30),
             Padding(
-              padding: const EdgeInsets.all(26.0),
+              padding: EdgeInsets.all(16.0),
               child: Neumorphic(
                 style: getCalendarContainerStyle(context),
                 child: SizedBox(
-                  height: 380, // Adjust height as needed
+                  height: 370,
                   child: Padding(
-                    padding: const EdgeInsets.all(
-                        8.0), // Padding inside the neumorphic container
+                    padding: EdgeInsets.all(8.0),
                     child: TableCalendar(
                       calendarStyle: CalendarStyle(
                         todayDecoration: BoxDecoration(
@@ -125,31 +158,48 @@ class MyCalendar extends StatelessWidget {
                         defaultDecoration: BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        markerDecoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
+                        // markerDecoration: BoxDecoration(
+                        //   color: Colors.red,
+                        //   shape: BoxShape.circle,
+                        // ),
+                        defaultTextStyle: drawerTextStyle(context),
+                        weekendTextStyle: drawerTextStyle(context),
+                      ),
+                      headerStyle: HeaderStyle(
+                        titleCentered: true,
+                        formatButtonVisible: false,
+                        leftChevronVisible: true,
+                        rightChevronVisible: true,
+                        headerMargin: EdgeInsets.only(bottom: 8.0),
+                        titleTextStyle: subheadingStyle(context),
+                      ),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: drawerTextStyle(context),
+                        weekendStyle: drawerTextStyle(context),
                       ),
                       calendarBuilders: CalendarBuilders(
                         markerBuilder: (context, date, events) {
                           final dateKey = DateFormat('yyyy-MM-dd').format(date);
-                          final completionStatus =
-                              taskController.completionDates[dateKey];
+                          final isCompleted =
+                              taskController.completionDates[dateKey] ?? false;
 
-                          if (completionStatus != null && completionStatus) {
+                          if (isCompleted) {
                             return Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 1.5),
-                              color: Colors.red,
+                              margin: EdgeInsets.symmetric(horizontal: 1.5),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
                               child: Center(
                                 child: Text(
                                   date.day.toString(),
-                                  style: TextStyle(color: Colors.white),
+                                  style: subheadingStyle(context)
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                             );
                           }
-                          return SizedBox();
+                          return null;
                         },
                       ),
                       focusedDay: DateTime.now(),
