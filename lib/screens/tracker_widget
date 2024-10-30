@@ -1,0 +1,103 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:goalsync/screens/theme.dart';
+
+import '../controller/task_controller.dart';
+import 'calendar_screen.dart';
+import 'progress_screen.dart';
+
+class TrackerWidget extends StatelessWidget {
+  final String taskName;
+  final bool isTaskChecked;
+  final int index;
+  final int taskId;
+
+  TrackerWidget({
+    required this.taskName,
+    required this.isTaskChecked,
+    required this.index,
+    required this.taskId,
+
+  });
+  @override
+  Widget build(BuildContext context) {
+    final TaskController taskController = Get.find();
+
+    return   ClipRRect(
+      borderRadius: BorderRadius.circular(11),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          width: 390,
+          height: 70,
+          child: neumorphicGraphContainer(
+            context,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: taskSelectedStyle(isSelected: true),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(
+                          Theme.of(context).brightness == Brightness.light
+                              ? 'assets/images/img_5.png'
+                              : 'assets/images/img_4.png',
+                          width: 150,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
+                        Text(
+                          'Tracker',
+                          style: subheadingStyle(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 1),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => MyCalendar(
+                        taskId: taskId,
+                        taskName: taskController.taskList[index],
+                        index: index,
+                      ));
+                    },
+                    child: Text(
+                      'Insights',
+                      style: subheadingStyle(context),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  SizedBox(width: 30),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => ProgressScreen(
+                        taskName: taskController.taskList[index],
+                        isTaskChecked: true,
+                        index: index,
+                        taskId: taskController.taskIdList[index],
+                      ));
+                    },
+                    child: Text(
+                      'Progress',
+                      style: subheadingStyle(context),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+  }
+}
