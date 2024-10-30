@@ -1,0 +1,569 @@
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:goalsync/screens/calendar_screen.dart';
+import 'package:goalsync/screens/task_screen.dart';
+import 'package:goalsync/screens/theme.dart';
+
+import '../controller/task_controller.dart';
+import '../database/dbhelper.dart';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Ensure you have GetX for state management
+
+// class ProgressScreen extends StatelessWidget {
+//   final DateTime currentStartDate = DateTime.now(); // Set the current date
+//   final String taskName;
+//   final bool isTaskChecked;
+//   final int index;
+//   final int taskId;
+//
+//   ProgressScreen({
+//     required this.taskName,
+//     required this.isTaskChecked,
+//     required this.index,
+//     required this.taskId,
+//   });
+//
+//   Future<Map<String, dynamic>> fetchData(TaskController taskController) async {
+//     final List<double> progressData = await fetchProgressData(taskController, currentStartDate, taskId);
+//     final Map<String, dynamic>? targetValueData = await fetchTargetValue(taskController);
+//
+//     return {
+//       'progressData': progressData,
+//       'targetValue': targetValueData?['target']?.toDouble() ?? 0.0,
+//       'targetUnit': targetValueData?['unit_value'] ?? '',
+//     };
+//   }
+//
+//   Future<List<double>> fetchProgressData(TaskController taskController, DateTime startDate, int taskId) async {
+//     List<double> progressData = [];
+//     for (int i = 0; i < 7; i++) {
+//       double progress = await taskController.getProgressForDate(taskId, startDate.subtract(Duration(days: i)));
+//       progressData.add(progress);
+//     }
+//     return progressData;
+//   }
+//
+//   Future<Map<String, dynamic>?> fetchTargetValue(TaskController taskController) async {
+//     return await taskController.getTargetValue(taskId);
+//   }
+//
+//   List<PieChartSectionData> showingSections(List<double> progressData, double targetValue, String targetUnit) {
+//     List<PieChartSectionData> sections = [];
+//     double totalProgress = progressData.reduce((a, b) => a + b);
+//
+//     // Check if the target unit is "time"
+//     if (targetUnit == 'time') {
+//       // Convert the target value to minutes if it's not already
+//       targetValue = targetValue * 60; // Assuming targetValue is in hours and we need minutes
+//     }
+//
+//     // Add a section for total progress in red
+//     sections.add(
+//       PieChartSectionData(
+//         color: Colors.red,
+//         value: totalProgress,
+//         title: '${targetValue.toStringAsFixed(0)} $targetUnit', // Show only target with unit
+//         radius: 70,
+//         titleStyle: TextStyle(fontSize: 14, color: Colors.white),
+//       ),
+//     );
+//
+//     return sections;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final TaskController taskController = Get.put(TaskController());
+//     final ThemeData themeData = Theme.of(context);
+//     final isLightTheme = themeData.brightness == Brightness.light;
+//
+//     return Scaffold(
+//       appBar: PreferredSize(
+//         preferredSize: Size.fromHeight(kToolbarHeight),
+//         child: Neumorphic(
+//           style: neumorphicAppBarStyle(context),
+//           child: AppBar(
+//             title: Text(taskName, style: HeadingStyle(context)),
+//             centerTitle: true,
+//             iconTheme: IconThemeData(color: isLightTheme ? Colors.black : Colors.white),
+//           ),
+//         ),
+//       ),
+//       body: Column(
+//         children: [
+//           SizedBox(height: 20),
+//           ClipRRect(
+//             borderRadius: BorderRadius.circular(11),
+//             child: Padding(
+//               padding: const EdgeInsets.all(16.0),
+//               child: Container(
+//                 width: 390,
+//                 height: 70,
+//                 child: neumorphicGraphContainer(
+//                   context,
+//                   child: Padding(
+//                     padding: const EdgeInsets.all(5.0),
+//                     child: Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         Spacer(),
+//                         GestureDetector(
+//                           onTap: () {
+//                             Get.to(() => TaskScreen(
+//                               taskName: taskController.taskList[index],
+//                               isTaskChecked: true,
+//                               index: index,
+//                               taskId: taskController.taskIdList[index],
+//                             ));
+//                           },
+//                           child: Text('Tracker', style: subheadingStyle(context)),
+//                         ),
+//                         Spacer(),
+//                         GestureDetector(
+//                           onTap: () {
+//                             Get.to(() => MyCalendar(
+//                               taskName: taskController.taskList[index],
+//                               index: index,
+//                               taskId: taskController.taskIdList[index],
+//                             ));
+//                           },
+//                           child: Text('Insights', style: subheadingStyle(context)),
+//                         ),
+//                         Container(
+//                           decoration: taskSelectedStyle(isSelected: true),
+//                           child: Stack(
+//                             alignment: Alignment.center,
+//                             children: [
+//                               Image.asset(
+//                                 Theme.of(context).brightness == Brightness.light
+//                                     ? 'assets/images/img_5.png'
+//                                     : 'assets/images/img_4.png',
+//                                 width: 150,
+//                                 height: 48,
+//                                 fit: BoxFit.cover,
+//                               ),
+//                               Text('Progress', style: subheadingStyle(context)),
+//                             ],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//
+//           FutureBuilder<Map<String, dynamic>>(
+//             future: fetchData(taskController),
+//             builder: (context, snapshot) {
+//               if (snapshot.connectionState == ConnectionState.waiting) {
+//                 return CircularProgressIndicator();
+//               } else if (snapshot.hasError) {
+//                 return Text('Error fetching data: ${snapshot.error}');
+//               } else {
+//                 final progressData = snapshot.data?['progressData'] as List<double>;
+//                 final targetValue = snapshot.data?['targetValue'] as double;
+//                 final targetUnit = snapshot.data?['targetUnit'] as String;
+//
+//                 return Padding(
+//                   padding: const EdgeInsets.symmetric(vertical: 10),
+//                   child: Column(
+//                     children: [
+//                       Text(
+//                         'Target Value: ${targetValue.toInt()} $targetUnit',
+//                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//                       ),
+//                       // Pie chart display
+//                       Padding(
+//                         padding: EdgeInsets.all(16.0),
+//                         child: Neumorphic(
+//                           style: getCalendarContainerStyle(context),
+//                           child: Container(
+//                             height: 310,
+//                             child: PieChart(
+//                               PieChartData(
+//                                 sections: showingSections(progressData, targetValue, targetUnit),
+//                                 borderData: FlBorderData(show: false),
+//                                 centerSpaceRadius: 0, // No center space
+//                                 startDegreeOffset: 180, // Start from the left for half moon
+//                                 sectionsSpace: 0, // No space between sections
+//                                 pieTouchData: PieTouchData(enabled: false), // Disable touch interaction if not needed
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 );
+//               }
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+class ProgressScreen extends StatelessWidget {
+  final DateTime currentStartDate = DateTime.now(); // Set the current date
+  final String taskName;
+  final bool isTaskChecked;
+  final int index;
+  final int taskId;
+
+  ProgressScreen({
+    required this.taskName,
+    required this.isTaskChecked,
+    required this.index,
+    required this.taskId,
+
+  });
+
+  Future<Map<String, dynamic>> fetchData(TaskController taskController) async {
+    final List<double> progressData =
+        await fetchProgressData(taskController, currentStartDate, taskId);
+    final Map<String, dynamic>? targetValueData =
+        await fetchTargetValue(taskController);
+
+    double targetValue = targetValueData?['target']?.toDouble() ?? 0.0;
+    String targetUnit = targetValueData?['unit_value'] ?? '';
+
+    if (targetUnit == "minutes") {
+      targetValue /= 60;
+      targetUnit = "hours";
+    }
+
+    return {
+      'progressData': progressData,
+      'targetValue': targetValue,
+      'targetUnit': targetUnit,
+    };
+  }
+
+
+  Future<List<double>> fetchProgressData(
+      TaskController taskController, DateTime startDate, int taskId) async {
+    try {
+      DateTime endDate = startDate.add(Duration(days: 6));
+
+      final progressData = await taskController.fetchProgressDataForDateRange(
+          startDate, endDate, taskId);
+
+      return progressData;
+    } catch (e) {
+      print('Error fetching progress data: $e');
+      return List<double>.filled(7, 0.0);
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchTargetValue(
+      TaskController taskController) async {
+    final Map<String, dynamic>? targetValueData =
+        await taskController.getTargetValue(taskId);
+
+    double targetValue = targetValueData?['target']?.toDouble() ?? 0.0;
+    String targetUnit = targetValueData?['unit_value'] ?? '';
+
+    return {
+      'target': targetValue,
+      'unit_value': targetUnit,
+    };
+  }
+
+  // List<PieChartSectionData> showingSections(List<double> progressData, double targetValue, String targetUnit) {
+  //   double totalProgress = progressData.reduce((a, b) => a + b);
+  //   List<PieChartSectionData> sections = [];
+  //
+  //   // Add sections for progress
+  //   for (int i = 0; i < progressData.length; i++) {
+  //     sections.add(
+  //       PieChartSectionData(
+  //         color: Colors.primaries[i % Colors.primaries.length], // Different colors for progress
+  //         value: progressData[i],
+  //         title: '${progressData[i].toStringAsFixed(0)}%', // Show progress percentage
+  //         radius: 50,
+  //         titleStyle: TextStyle(fontSize: 14, color: Colors.white),
+  //       ),
+  //     );
+  //   }
+  //
+  //   // Add a section for the target value in red with unit
+  //   if (targetValue > 0) {
+  //     sections.add(
+  //       PieChartSectionData(
+  //         color: Colors.red, // Red for the target value
+  //         value: targetValue,
+  //         title: '${targetValue.toStringAsFixed(0)} $targetUnit', // Include unit here
+  //         radius: 30,
+  //         titleStyle: TextStyle(fontSize: 14, color: Colors.white),
+  //       ),
+  //     );
+  //   }
+  //
+  //   // Add a section for the remaining value if needed
+  //   if (totalProgress < targetValue) {
+  //     sections.add(
+  //       PieChartSectionData(
+  //         color: Colors.transparent, // Make the section transparent
+  //         value: targetValue - totalProgress, // Remaining
+  //         title: '',
+  //         radius: 50,
+  //         titleStyle: TextStyle(fontSize: 14, color: Colors.white),
+  //       ),
+  //     );
+  //   }
+  //
+  //   return sections;
+  // }
+
+  List<PieChartSectionData> showingSections(
+      List<double> progressData, double targetValue, String targetUnit) {
+    List<PieChartSectionData> sections = [];
+    double totalProgress = progressData.reduce((a, b) => a + b);
+
+    // Add a section for total progress in red
+    sections.add(
+      PieChartSectionData(
+        color: Colors.red,
+        value: totalProgress,
+        title:
+            '${targetValue.toStringAsFixed(0)} $targetUnit', // Show only target with unit
+
+        radius: 70,
+        titleStyle: TextStyle(fontSize: 14, color: Colors.white),
+      ),
+    );
+
+    // Optionally add a section for the remaining target as a visual (commented out)
+    if (totalProgress < targetValue) {
+      sections.add(
+        PieChartSectionData(
+          color: Colors
+              .transparent, // Make it transparent to not show any remaining section
+          value: targetValue - totalProgress, // Remaining value
+          radius: 70,
+          title: '', // No title for remaining section
+        ),
+      );
+    }
+
+    return sections;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final TaskController taskController = Get.put(TaskController());
+    final ThemeData themeData = Theme.of(context);
+    final isLightTheme = themeData.brightness == Brightness.light;
+
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: Neumorphic(
+          style: neumorphicAppBarStyle(context),
+          child: AppBar(
+            title: Text(taskName, style: HeadingStyle(context)),
+            centerTitle: true,
+            iconTheme: IconThemeData(
+                color: isLightTheme ? Colors.black : Colors.white),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 20),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                width: 390,
+                height: 70,
+                child: neumorphicGraphContainer(
+                  context,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => TaskScreen(
+                                  taskName: taskController.taskList[index],
+                                  isTaskChecked: true,
+                                  index: index,
+                                  taskId: taskController.taskIdList[index],
+                                ));
+                          },
+                          child:
+                              Text('Tracker', style: subheadingStyle(context)),
+                        ),
+                        Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => MyCalendar(
+                                  taskName: taskController.taskList[index],
+                                  index: index,
+                                  taskId: taskController.taskIdList[index],
+                                ));
+                          },
+                          child:
+                              Text('Insights', style: subheadingStyle(context)),
+                        ),
+                        Container(
+                          decoration: taskSelectedStyle(isSelected: true),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(
+                                Theme.of(context).brightness == Brightness.light
+                                    ? 'assets/images/img_5.png'
+                                    : 'assets/images/img_4.png',
+                                width: 150,
+                                height: 48,
+                                fit: BoxFit.cover,
+                              ),
+                              Text('Progress', style: subheadingStyle(context)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 20),
+              Container(
+                width: 360,
+                height: 60,
+                child: neumorphicGraphContainer(
+                  context,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(11),
+                    child: Padding(
+                      padding:  EdgeInsets.all(5.0),
+                      child: Center(
+                        child: Text(
+                          'Today Progress',
+                          style: subheadingStyle(context),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          FutureBuilder<Map<String, dynamic>>(
+            future: fetchData(taskController),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error fetching data: ${snapshot.error}');
+              } else {
+                final progressData =
+                    snapshot.data?['progressData'] as List<double>;
+                final targetValue = snapshot.data?['targetValue'] as double;
+                final targetUnit = snapshot.data?['targetUnit'] as String;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    children: [
+                      // Text(
+                      //   'Target Value: ${targetValue.toInt()} $targetUnit',
+                      //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      // ),
+                      // Pie chart display
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Neumorphic(
+                          style: getCalendarContainerStyle(context),
+                          child: Container(
+                            height: 310,
+                            child: PieChart(
+                              PieChartData(
+                                sections: showingSections(
+                                    progressData, targetValue, targetUnit),
+                                borderData: FlBorderData(show: false),
+                                centerSpaceRadius: 0, // No center space
+                                startDegreeOffset:
+                                    180, // Start from the left for half moon
+                                sectionsSpace: 0, // No space between sections
+                                pieTouchData: PieTouchData(
+                                    enabled:
+                                        false), // Disable touch interaction if not needed
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 20),
+                          Container(
+                            width: 360,
+                            height: 60,
+                            child: neumorphicGraphContainer(
+                              context,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(11),
+                                child: Padding(
+                                  padding:  EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Spread items to edges
+                                    children: [
+                                      Text(
+                                        'Time lapse',
+                                        style: subheadingStyle(context),
+                                      ),
+                                      Text(
+                                        'Duration', // Replace 'Duration' with the actual duration text
+                                        style: subheadingStyle(context),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
