@@ -1,0 +1,560 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:goalsync/database/dbhelper.dart';
+import 'package:goalsync/screens/theme.dart';
+
+import '../controller/task_controller.dart';
+
+import 'package:sqflite/sqflite.dart'; // Import sqflite if not already imported
+
+// class Utils {
+//   static void showAddTaskBottomSheet(BuildContext context) async {
+//     final TaskController taskController = Get.find();
+//     final TextEditingController taskControllerInput = TextEditingController();
+//     final FocusNode taskInputFocusNode = FocusNode();
+//     bool isDropdownExpanded = false;
+//     String? selectedUnitLabel;
+//     int? selectedUnitId;
+//
+//     // Fetch units from the database
+//     List<Map<String, dynamic>> units = await DatabaseHelper().getUnits();
+//
+//     Get.bottomSheet(
+//       ClipRRect(
+//         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+//         child: StatefulBuilder(
+//           builder: (BuildContext context, StateSetter setState) {
+//             return Container(
+//               height: isDropdownExpanded ? 500 : 400,
+//               padding: EdgeInsets.all(16.0),
+//               color: Theme.of(context).scaffoldBackgroundColor,
+//               child: SingleChildScrollView(
+//                 child: Stack(
+//                   children: [
+//                     Column(
+//                       children: [
+//                         Text(
+//                           'Add New Task',
+//                           style: subheadingStyle(context),
+//                         ),
+//                         SizedBox(height: 20),
+//                         GestureDetector(
+//                           onTap: () {
+//                             FocusScope.of(context)
+//                                 .requestFocus(taskInputFocusNode);
+//                           },
+//                           child: Stack(
+//                             alignment: Alignment.centerLeft,
+//                             children: [
+//                               taskBackgroundImage(context, 60),
+//                               Padding(
+//                                 padding: const EdgeInsets.only(left: 14.0),
+//                                 child: TextFormField(
+//                                   controller: taskControllerInput,
+//                                   focusNode: taskInputFocusNode,
+//                                   style: titleStyle(context),
+//                                   decoration: InputDecoration(
+//                                     hintText: 'Enter Task',
+//                                     border: InputBorder.none,
+//                                     contentPadding: EdgeInsets.zero,
+//                                   ),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                         SizedBox(height: 20),
+//                         GestureDetector(
+//                           onTap: () {
+//                             setState(() {
+//                               isDropdownExpanded = !isDropdownExpanded;
+//                             });
+//                           },
+//                           child: Stack(
+//                             alignment: Alignment.centerLeft,
+//                             children: [
+//                               taskBackgroundImage(context, 60),
+//                               Padding(
+//                                 padding: EdgeInsets.only(left: 14.0),
+//                                 child: Text(
+//                                   selectedUnitLabel ?? 'Select Unit',
+//                                   style: titleStyle(context),
+//                                 ),
+//                               ),
+//                               Positioned(
+//                                 right: 14.0,
+//                                 child: Icon(
+//                                   isDropdownExpanded
+//                                       ? Icons.arrow_drop_up
+//                                       : Icons.arrow_drop_down,
+//                                   size: 24,
+//                                   color: Colors.black,
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                         SizedBox(height: 40),
+//                         addButton(context, () async {
+//                           final task = taskControllerInput.text.trim();
+//
+//                           if (task.isNotEmpty && selectedUnitId != null) {
+//                             await taskController.addTask(task, selectedUnitId!);
+//
+//                             final taskId = taskController.taskList.length;
+//
+//                             taskController.addTaskForDate(DateTime.now(), taskId);
+//
+//                             taskControllerInput.clear();
+//                             Get.back();
+//
+//                             showCustomToast(context, 'Task added successfully!');
+//                           } else {
+//                             showCustomToast(context, 'Please fill in the task and select a unit before adding.');
+//                           }
+//                         }),
+//                       ],
+//                     ),
+//                     if (isDropdownExpanded)
+//                       Positioned(
+//                         top: 125,
+//                         left: 0,
+//                         right: 0,
+//                         child: GestureDetector(
+//                           onTap: () {
+//                             setState(() {
+//                               isDropdownExpanded = false;
+//                             });
+//                           },
+//                           child: Stack(
+//                             children: [
+//                               Container(
+//                                 height: 180,
+//                                 width: MediaQuery.of(context).size.width * 0.96,
+//                                 child: Image.asset(
+//                                   'assets/images/dropdown.png',
+//                                   fit: BoxFit.fill,
+//                                 ),
+//                               ),
+//                               Positioned.fill(
+//                                 child: ListView(
+//                                   padding: EdgeInsets.zero,
+//                                   children: units.map((unit) {
+//                                     return Column(
+//                                       children: [
+//                                         _buildDropdownOption(unit['unit_label'], setState, context, (label) {
+//                                           selectedUnitLabel = label;
+//                                           selectedUnitId = unit['unit_id']; // Save unitId
+//                                           isDropdownExpanded = false;
+//                                         }),
+//                                         Divider(), // Divider added here
+//                                       ],
+//                                     );
+//                                   }).toList(),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                       ),
+//                     Positioned(
+//                       right: 0,
+//                       top: -8,
+//                       child: GestureDetector(
+//                         onTap: () {
+//                           Get.back(); // Close the bottom sheet
+//                         },
+//                         child: Icon(
+//                           Icons.close,
+//                           size: 28,
+//                           color: Colors.black,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//       backgroundColor: Colors.transparent,
+//     );
+//   }
+//
+//   static Widget _buildDropdownOption(String value, StateSetter setState, BuildContext context, Function(String) onSelected) {
+//     return GestureDetector(
+//       onTap: () {
+//         setState(() {
+//           onSelected(value);
+//         });
+//       },
+//       child: Padding(
+//         padding: EdgeInsets.symmetric(vertical: 9, horizontal: 16),
+//         child: Align(
+//           alignment: Alignment.centerLeft, // Aligns text to the left
+//           child: Text(value, style: titleStyle(context)),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   static void showCustomToast(BuildContext context, String message) {
+//     final overlay = Overlay.of(context);
+//     final overlayEntry = OverlayEntry(
+//       builder: (context) => Positioned(
+//         bottom: 100,
+//         left: MediaQuery.of(context).size.width * 0.1,
+//         right: MediaQuery.of(context).size.width * 0.1,
+//         child: Material(
+//           elevation: 10,
+//           borderRadius: BorderRadius.circular(8),
+//           child: Container(
+//             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//             decoration: BoxDecoration(
+//               color: Colors.black,
+//               borderRadius: BorderRadius.circular(8),
+//             ),
+//             child: Text(
+//               message,
+//               textAlign: TextAlign.center,
+//               style: TextStyle(color: Colors.white),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//
+//     overlay.insert(overlayEntry);
+//
+//     Future.delayed(Duration(seconds: 2), () {
+//       overlayEntry.remove();
+//     });
+//   }
+// }
+
+class Utils {
+  static void showAddTaskBottomSheet(BuildContext context) async {
+    final TaskController taskController = Get.find();
+    final TextEditingController taskControllerInput = TextEditingController();
+    final TextEditingController additionalFieldController =
+        TextEditingController(); // Controller for the additional field
+    final FocusNode taskInputFocusNode = FocusNode();
+    bool isDropdownExpanded = false;
+    String? selectedUnitLabel;
+    String? selectedUnitValue; // Add variable for unit value
+    int? selectedUnitId;
+
+    // Fetch units data
+    List<Map<String, dynamic>> units = await DatabaseHelper().getUnits();
+
+    // Show the bottom sheet
+    Get.bottomSheet(
+      ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+        child: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              child: Container(
+                height: isDropdownExpanded ? 900 : 500,
+                padding: EdgeInsets.all(16.0),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          'Add New Task',
+                          style: subheadingStyle(context),
+                        ),
+                        SizedBox(height: 20),
+                        // Task input field
+                        GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context)
+                                .requestFocus(taskInputFocusNode);
+                          },
+                          child: Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              taskBackgroundImage(context, 60),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 14.0),
+                                child: TextFormField(
+                                  controller: taskControllerInput,
+                                  focusNode: taskInputFocusNode,
+                                  style: titleStyle(context),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter Task',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        // Unit selection dropdown
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isDropdownExpanded = !isDropdownExpanded;
+                            });
+                          },
+                          child: Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              taskBackgroundImage(context, 60),
+                              Padding(
+                                padding: EdgeInsets.only(left: 14.0),
+                                child: Text(
+                                  selectedUnitLabel ?? 'Select Unit',
+                                  style: titleStyle(context),
+                                ),
+                              ),
+                              Positioned(
+                                right: 10.0,
+                                top: 10.0,
+                                child: Icon(
+                                  isDropdownExpanded
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                  size: 24,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        // Target input field with the selected unit value on the right
+                        Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            taskBackgroundImage(context, 60),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 14.0),
+                              child: TextFormField(
+                                controller: additionalFieldController,
+                                style: titleStyle(context),
+                                decoration: InputDecoration(
+                                  hintText: 'Target (in hours)',
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                            // Display the selected unit value on the right
+                            if (selectedUnitValue != null)
+                              Positioned(
+                                right: 10.0,
+                                child: Text(
+                                  selectedUnitValue!, // Display the selected unit value
+                                  style: titleStyle(context),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        // Add task button
+                        addButton(context, () async {
+                          final task =
+                              taskControllerInput.text.trim(); // Task input
+                          final additionalInfo = additionalFieldController.text
+                              .trim(); // This should be the target value
+
+                          // Check if task field and unit field are not empty
+                          if (task.isNotEmpty && selectedUnitId != null) {
+                            int targetValue = 0; // Initialize targetValue
+
+                            // Only parse the additionalInfo if it's not empty
+                            if (additionalInfo.isNotEmpty) {
+                              try {
+                                // Check if the selected unit is specifically "hours"
+                                if (selectedUnitValue == "hours") {
+                                  // Convert target value in hours to minutes
+                                  targetValue = int.parse(additionalInfo) * 60;
+                                } else {
+                                  // For other units, just use the value as-is
+                                  targetValue = int.parse(additionalInfo);
+                                }
+                              } catch (e) {
+                                showCustomToast(context,
+                                    'Invalid target value. Please enter a number.'); // Error handling
+                                return;
+                              }
+                            }
+
+                            await taskController.addTask(
+                                task, selectedUnitId!, targetValue);
+
+                            taskControllerInput.clear();
+                            additionalFieldController.clear();
+                            Get.back();
+
+                            showCustomToast(context,
+                                'Task added successfully with additional info!'); // Success message
+                          } else {
+                            showCustomToast(context,
+                                'Please fill in all fields and select a unit before adding.'); // Error message
+                          }
+                        })
+                      ],
+                    ),
+                    // Dropdown list
+                    if (isDropdownExpanded)
+                      Positioned(
+                        top: 125,
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isDropdownExpanded = false;
+                            });
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 310,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/dropdown.png',
+                                    ),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 10.0, right: 10.0),
+                                        child: Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 24,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: units.length,
+                                        itemBuilder: (context, index) {
+                                          final unit = units[index];
+                                          return Column(
+                                            children: [
+                                              _buildDropdownOption(
+                                                unit['unit_label'],
+                                                unit[
+                                                    'unit_value'], // Pass unit_value as well
+                                                setState,
+                                                context,
+                                                (label, value) {
+                                                  selectedUnitLabel = label;
+                                                  selectedUnitValue =
+                                                      value; // Save the selected unit value
+                                                  selectedUnitId =
+                                                      unit['unit_id'];
+                                                  isDropdownExpanded = false;
+                                                },
+                                              ),
+                                              Divider(),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    // Close button
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.back();
+                        },
+                        child: Icon(
+                          Icons.close,
+                          size: 28,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  static Widget _buildDropdownOption(
+      String label,
+      String value,
+      StateSetter setState,
+      BuildContext context,
+      Function(String, String) onSelected) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          onSelected(label, value); // Pass both the label and value
+        });
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 9, horizontal: 16),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(label, style: titleStyle(context)),
+        ),
+      ),
+    );
+  }
+
+  static void showCustomToast(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 100,
+        left: MediaQuery.of(context).size.width * 0.1,
+        right: MediaQuery.of(context).size.width * 0.1,
+        child: Material(
+          elevation: 10,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+}
