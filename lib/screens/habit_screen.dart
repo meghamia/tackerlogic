@@ -1,14 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
-import 'package:get/get.dart';
-import 'package:goalsync/controller/task_controller.dart';
-import 'package:goalsync/screens/task_screen.dart';
-import 'package:goalsync/screens/theme.dart';
-import 'package:goalsync/service/drawer.dart';
-import 'package:intl/intl.dart';
-
-import '../controller/theme_controller.dart';
-
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
+// import 'package:get/get.dart';
+// import 'package:goalsync/controller/task_controller.dart';
+// import 'package:goalsync/screens/task_screen.dart';
+// import 'package:goalsync/screens/taskwidgets_homescreen.dart';
+// import 'package:goalsync/screens/theme.dart';
+// import 'package:goalsync/service/drawer.dart';
+//
+// import '../controller/theme_controller.dart';
+//
 // class HabitScreen extends StatelessWidget {
 //   final TextEditingController taskControllerInput = TextEditingController();
 //
@@ -17,172 +18,198 @@ import '../controller/theme_controller.dart';
 //   @override
 //   Widget build(BuildContext context) {
 //     final TaskController taskController = Get.find();
+//
 //     return Scaffold(
 //       key: drawerKey,
 //       appBar: _appBar(context),
 //       drawer: MyDrawer(),
-//       body: Column(
+//       body: Stack(
 //         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(17.0),
-//             child: Row(
-//               children: [],
-//             ),
-//           ),
-//           Expanded(
-//             child: Obx(() {
-//               if (taskController.isTaskSelected.length <
-//                   taskController.taskList.length) {
-//                 taskController.isTaskSelected.addAll(
-//                   List.generate(
-//                     taskController.taskList.length -
-//                         taskController.isTaskSelected.length,
-//                     (_) => false,
-//                   ),
-//                 );
-//               }
+//           Column(
+//             children: [
+//               Padding(
+//                 padding: const EdgeInsets.all(17.0),
+//                 child: Row(
+//                   children: [],
+//                 ),
+//               ),
+//               Expanded(
+//                 child: Obx(() {
+//                   if (taskController.isTaskSelected.length <
+//                       taskController.taskList.length) {
+//                     taskController.isTaskSelected.addAll(
+//                       List.generate(
+//                         taskController.taskList.length -
+//                             taskController.isTaskSelected.length,
+//                         (_) => false,
+//                       ),
+//                     );
+//                   }
 //
-//               return ListView.separated(
-//                 itemCount: taskController.taskList.length,
-//                 separatorBuilder: (context, index) => SizedBox(height: 16),
-//                 itemBuilder: (context, index) {
-//                   return Dismissible(
-//                     key: ValueKey(taskController.taskList[index]),
-//                     background: Container(
-//                       color: Colors.blue.shade300,
-//                       child: Icon(Icons.delete_outline,
-//                           size: 35, color: Colors.white),
-//                       alignment: Alignment.centerRight,
-//                       padding: EdgeInsets.symmetric(horizontal: 20),
-//                     ),
-//                     direction: DismissDirection.endToStart,
-//                     onDismissed: (direction) {
-//                       taskController.deleteTask(index);
-//                     },
-//                     child: Padding(
-//                       padding: EdgeInsets.symmetric(horizontal: 16.0),
-//                       child: Container(
-//                         height: 60,
-//                         child: Row(
+//                   return ListView.builder(
+//                     itemCount: taskController.taskList.length,
+//                     itemBuilder: (context, index) {
+//                       final task = taskController.taskList[index];
+//
+//                       return Padding(
+//                         padding: EdgeInsets.symmetric(horizontal: 16.0),
+//                         child: Column(
+//                           mainAxisSize: MainAxisSize.min,
 //                           children: [
-//                             Expanded(
-//                               child: GestureDetector(
-//                                 onTap: () {
-//                                   Get.to(TaskScreen(
-//                                     taskName: taskController.taskList[index],
-//                                     isTaskChecked: true,
-//                                     index: index,
-//                                   ));
-//                                 },
-//                                 child: Container(
-//                                   padding: EdgeInsets.all(15.0),
-//                                   constraints: BoxConstraints(
-//                                     maxWidth:
-//                                         MediaQuery.of(context).size.width *
-//                                             0.85,
-//                                   ),
-//                                   decoration: BoxDecoration(
-//                                     color: Theme.of(context).brightness ==
-//                                             Brightness.light
-//                                         ? Color(
-//                                             0xFFF5F5FA) // Light theme background color
-//                                         : Color(
-//                                             0xFF2E2E2E), // Dark theme background color
-//                                     borderRadius: BorderRadius.circular(8),
-//                                     boxShadow: [
-//                                       BoxShadow(
-//                                         color: Theme.of(context).brightness ==
-//                                                 Brightness.light
-//                                             ? Color(
-//                                                 0xFFE0E0E0) // Light shadow for depth in light theme
-//                                             : Color(
-//                                                 0xFF1E1E1E), // Dark shadow for depth in dark theme
-//                                         offset: Offset(6, 6), blurRadius: 12,
-//                                       ),
-//                                       BoxShadow(
-//                                         color: Theme.of(context).brightness ==
-//                                                 Brightness.light
-//                                             ? Color(0xFFFFFFFF).withOpacity(
-//                                                 0.4) // Light shadow for an embedded effect in light theme
-//                                             : Color(
-//                                                 0xFF3E3E3E), // Light shadow for an embedded effect in dark theme
-//                                         offset: Offset(-6, -6),
-//                                         blurRadius: 12,
-//                                       ),
-//                                     ],
-//                                   ),
-//                                   child: Padding(
-//                                     padding: EdgeInsets.only(
-//                                         left: 10.0), // Shift text to the right
-//                                     child: Text(
-//                                       taskController.taskList[index],
-//                                       style: titleStyle(context),
-//                                       // TextStyle(
-//                                       //   color: Theme.of(context).brightness == Brightness.light ? Colors.black // Text color is black in light theme
-//                                       //       : Colors
-//                                       //           .white, // Text color is white in dark theme
-//                                       //   fontSize: 18,
-//                                       // ),
-//                                     ),
-//                                   ),
-//                                 ),
+//                             Dismissible(
+//                               key: ValueKey(task),
+//                               background: Container(
+//                                 color: Colors.blue.shade300,
+//                                 child: Icon(Icons.delete_outline, size: 35, color: Colors.white),
+//                                 alignment: Alignment.centerRight,
+//                                 padding: EdgeInsets.symmetric(horizontal: 20),
 //                               ),
-//                             ),
-//                             SizedBox(width: 10),
-//                             GestureDetector(
-//                               onTap: () {
-//                                 taskController.toggleTaskSelection(
-//                                   index,
-//                                   !taskController.isTaskSelected[index],
-//                                 );
+//                               direction: DismissDirection.endToStart,
+//                               onDismissed: (direction) {
+//                                 taskController.deleteTask(index);
 //                               },
-//                               child: Container(
-//                                 // You can add padding, margin, or other styles if needed
-//                                 // decoration: BoxDecoration(
-//                                 //   color: Colors.transparent, // Set a transparent background if desired
-//                                 //   borderRadius: BorderRadius.circular(3), // Optional border radius
-//                                 //   boxShadow: getCurrentThemeBoxShadows(context), // Add shadows if needed
-//                                 // ),
-//                                 child: Stack(
-//                                   alignment: Alignment
-//                                       .center, // Center the items within the Stack
-//                                   children: [
-//                                     Image.asset(
-//                                       Theme.of(context).brightness ==
-//                                               Brightness.light
-//                                           ? 'assets/images/lightbox.png' // Light theme image
-//                                           : 'assets/images/darknox.png', // Dark theme image
-//                                       height: 70,
-//                                       width: 70,
-//                                       fit: BoxFit.cover,
-//                                     ),
-//                                     Align(
-//                                       alignment: Alignment.center,
-//                                       child: Icon(
-//                                         Icons.check,
-//                                         color: taskController
-//                                                 .isTaskSelected[index]
-//                                             ? (Theme.of(context).brightness ==
-//                                                     Brightness.light
-//                                                 ? Colors.black
-//                                                 : Colors.white)
-//                                             : Colors.transparent,
-//                                         size: 22,
+//                               child: Row(
+//                                 children: [
+//                                   Expanded(
+//                                     child: GestureDetector(
+//                                       onTap: () {
+//                                         Get.to(TaskScreen(
+//                                           taskName: task,
+//                                           isTaskChecked: true,
+//                                           index: index,
+//                                           taskId: taskController.taskIdList[index],
+//                                         ));
+//                                       },
+//                                       onLongPress: () {
+//                                         _showOptionsDialog(context, taskController, index);
+//                                       },
+//                                       child: Stack(
+//                                         clipBehavior: Clip.none,  // Allow overlap outside bounds
+//                                         children: [
+//                                           Container(
+//                                             height: 58,
+//                                             width: double.infinity,
+//                                             padding: EdgeInsets.all(15.0),
+//                                             decoration: BoxDecoration(
+//                                               color: Theme.of(context).brightness == Brightness.light
+//                                                   ? Color(0xFFF5F5FA)
+//                                                   : Color(0xFF2E2E2E),
+//                                               borderRadius: BorderRadius.circular(8),
+//                                               boxShadow: getCurrentThemeBoxShadows(context),
+//                                             ),
+//                                             child: Row(
+//                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                               children: [
+//                                                 Text(
+//                                                   task,
+//                                                   style: TextStyle(
+//                                                     color: Theme.of(context).brightness == Brightness.light
+//                                                         ? Colors.black
+//                                                         : Colors.white,
+//                                                   ),
+//                                                 ),
+//                                               ],
+//                                             ),
+//                                           ),
+//
+//                                           // Pin icon at the top-left corner (overlapping the task card)
+//                                           Positioned(
+//                                             top: -10,
+//                                             left: -10,
+//                                             child: Obx(() => Visibility(
+//                                               visible: taskController.pinnedTasks.contains(task),
+//                                               child: Transform.rotate(
+//                                                 angle: 0.3,
+//                                                 child: Icon(
+//                                                   Icons.push_pin_outlined,
+//                                                   color: Theme.of(context).brightness == Brightness.light
+//                                                       ? Colors.black
+//                                                       : Colors.white,
+//                                                   size: 20,  // Adjust the icon size as needed
+//                                                 ),
+//                                               ),
+//                                             )),
+//                                           ),
+//                                         ],
 //                                       ),
 //                                     ),
-//                                   ],
-//                                 ),
+//                                   ),
+//
+//                                   GestureDetector(
+//                                     onTap: () {
+//                                       taskController.toggleTaskSelection(
+//                                         index,
+//                                         !taskController.isTaskSelected[index],
+//                                       );
+//                                     },
+//                                     child: Container(
+//                                       height: 80,
+//                                       width: 80,
+//                                       child: Padding(
+//                                         padding: EdgeInsets.only(left: 10.0),
+//                                         child: Stack(
+//                                           alignment: Alignment.center,
+//                                           children: [
+//                                             Container(
+//                                               width: 30,
+//                                               height: 30,
+//                                               child: Image.asset(
+//                                                 Theme.of(context).brightness == Brightness.light
+//                                                     ? 'assets/images/img_1.png'
+//                                                     : 'assets/images/img.png',
+//                                                 fit: BoxFit.cover,
+//                                               ),
+//                                             ),
+//                                             if (taskController.isTaskSelected[index])
+//                                               Center(
+//                                                 child: Padding(
+//                                                   padding: const EdgeInsets.only(left: 1.0, bottom: 3),
+//                                                   child: Container(
+//                                                     width: 16,
+//                                                     height: 16,
+//                                                     child: Image.asset(
+//                                                       Theme.of(context).brightness == Brightness.light
+//                                                           ? 'assets/images/darktic.png'
+//                                                           : 'assets/images/lighttic.png',
+//                                                       fit: BoxFit.cover,
+//                                                     ),
+//                                                   ),
+//                                                 ),
+//                                               ),
+//                                           ],
+//                                         ),
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 ],
 //                               ),
 //                             ),
 //                           ],
 //                         ),
-//                       ),
-//                     ),
+//                       );
+//
+//                     },
 //                   );
-//                 },
-//               );
-//             }),
+//                 }),
+//               ),
+//             ],
 //           ),
+//           // Positioned(
+//           //   bottom: 0,
+//           //   left: 0,
+//           //   right: 0,
+//           //   child: Center(
+//           //     child: FloatingActionButton(
+//           //       onPressed: () {
+//           //         _showAddTaskBottomSheet(context);
+//           //       },
+//           //       child: Icon(
+//           //         Icons.add,
+//           //         color: subheadingStyle(context).color,
+//           //       ),
+//           //     ),
+//           //   ),
+//           // ),
 //         ],
 //       ),
 //     );
@@ -215,7 +242,7 @@ import '../controller/theme_controller.dart';
 //           actions: [
 //             IconButton(
 //               onPressed: () {
-//                 _showAddTaskBottomSheet(context);
+//                 Utils.showAddTaskBottomSheet(context);
 //               },
 //               icon: Icon(
 //                 Icons.add,
@@ -228,68 +255,88 @@ import '../controller/theme_controller.dart';
 //     );
 //   }
 //
-//   void _showAddTaskBottomSheet(BuildContext context) {
-//     final TaskController taskController = Get.find();
-//     final TextEditingController taskControllerInput = TextEditingController();
-//     final FocusNode taskInputFocusNode = FocusNode();
+//   void _showOptionsDialog(BuildContext context, TaskController taskController, int index) {
+//     final task = taskController.taskList[index];
 //
-//     Get.bottomSheet(
-//       ClipRRect(
-//         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-//         child: Container(
-//           height: 300,
-//           padding: EdgeInsets.all(16.0),
-//           color: Theme.of(context).scaffoldBackgroundColor,
-//           child: Column(
-//             children: [
-//               Text(
-//                 'Add New Task',
-//                 style: subheadingStyle(context),
-//               ),
-//               SizedBox(height: 20),
-//               GestureDetector(
-//                 onTap: () {
-//                   FocusScope.of(context).requestFocus(taskInputFocusNode);
-//                 },
-//                 child: Stack(
-//                   alignment: Alignment.centerLeft,
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return Dialog(
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.only(
+//               topLeft: Radius.circular(10),
+//               topRight: Radius.circular(0),
+//               bottomLeft: Radius.circular(0),
+//               bottomRight: Radius.circular(0),
+//             ),
+//           ),
+//           child: SizedBox(
+//             width: 200,
+//             height: 130,
+//             child: Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Center(
+//                 child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   mainAxisSize: MainAxisSize.min,
 //                   children: [
-//                     taskBackgroundImage(context, 60),
-//                     Padding(
-//                       padding: const EdgeInsets.only(left: 14.0),
-//                       child: TextFormField(
-//                         controller: taskControllerInput,
-//                         focusNode: taskInputFocusNode,
-//                         style: titleStyle(context),
-//                         decoration: InputDecoration(
-//                           hintText: 'Enter Task',
-//                           border: InputBorder.none,
-//                           contentPadding: EdgeInsets.zero,
-//                         ),
+//                     ListTile(
+//                       leading: Icon(taskController.pinnedTasks.contains(task)
+//                           ? Icons.push_pin
+//                           : Icons.push_pin_outlined),
+//                       title: Text(
+//                         taskController.pinnedTasks.contains(task)
+//                             ? 'Unpin'
+//                             : 'Pin',
+//                         style: TextStyle(fontSize: 14),
 //                       ),
+//                       onTap: () {
+//                         if (!taskController.pinnedTasks.contains(task) &&
+//                             taskController.pinnedTasks.length >= 2) {
+//                           // Show custom toast if trying to pin more than 2 tasks
+//                           Utils.showCustomToast(
+//                               context, 'You can only pin up to 2 tasks.');
+//                         } else {
+//                           taskController.pinTask(index);
+//                         }
+//                         Navigator.of(context).pop(); // Close dialog
+//                       },
+//                     ),
+//                     ListTile(
+//                       leading: Icon(Icons.share),
+//                       title: Text('Share', style: TextStyle(fontSize: 14)),
+//                       onTap: () {
+//                         _shareTask(task);
+//                         Navigator.of(context).pop(); // Close dialog
+//                       },
 //                     ),
 //                   ],
 //                 ),
 //               ),
-//               SizedBox(height: 40),
-//               addButton(context, () {
-//                 final task = taskControllerInput.text.trim();
-//                 if (task.isNotEmpty) {
-//                   taskController.addTask(task);
-//                   final taskIndex = taskController.taskList.length - 1;
-//                   taskController.addTaskForDate(DateTime.now(), taskIndex);
-//                 }
-//                 Get.back();
-//               }),
-//             ],
+//             ),
 //           ),
-//         ),
-//       ),
-//       backgroundColor: Colors.transparent,
+//         );
+//       },
 //     );
 //   }
+//
+//   void _shareTask(String task) {}
 // }
 
+
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
+import 'package:get/get.dart';
+import 'package:goalsync/controller/task_controller.dart';
+import 'package:goalsync/screens/recording_screen.dart';
+import 'package:goalsync/screens/task_screen.dart';
+import 'package:goalsync/screens/taskwidgets_homescreen.dart';
+import 'package:goalsync/screens/theme.dart';
+import 'package:goalsync/service/drawer.dart';
+
+import '../controller/theme_controller.dart';
 
 class HabitScreen extends StatelessWidget {
   final TextEditingController taskControllerInput = TextEditingController();
@@ -299,129 +346,233 @@ class HabitScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TaskController taskController = Get.find();
+
     return Scaffold(
       key: drawerKey,
       appBar: _appBar(context),
       drawer: MyDrawer(),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(17.0),
-            child: Row(
-              children: [],
-            ),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (taskController.isTaskSelected.length < taskController.taskList.length) {
-                taskController.isTaskSelected.addAll(
-                  List.generate(
-                    taskController.taskList.length - taskController.isTaskSelected.length,
-                        (_) => false,
-                  ),
-                );
-              }
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(17.0),
+                child: Row(
+                  children: [],
+                ),
+              ),
+              Expanded(
+                child: Obx(() {
+                  if (taskController.isTaskSelected.length <
+                      taskController.taskList.length) {
+                    taskController.isTaskSelected.addAll(
+                      List.generate(
+                        taskController.taskList.length -
+                            taskController.isTaskSelected.length,
+                            (_) => false,
+                      ),
+                    );
+                  }
 
-              return ListView.separated(
-                itemCount: taskController.taskList.length,
-                separatorBuilder: (context, index) => SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  return Dismissible(
-                    key: ValueKey(taskController.taskList[index]),
-                    background: Container(
-                      color: Colors.blue.shade300,
-                      child: Icon(Icons.delete_outline, size: 35, color: Colors.white),
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
-                      taskController.deleteTask(index);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal:16.0),
-                      child: Container(
-                        height: 58,
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return ListView.builder(
+                    itemCount: taskController.taskList.length,
+                    itemBuilder: (context, index) {
+                      final task = taskController.taskList[index];
+                      final isTimeUnit = taskController.taskUnit[index] == 1; // Check if unit_id is 1 for time-based tasks
+
+                      // Use Obx to make the icon reactive
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(TaskScreen(
-                                    taskName: taskController.taskList[index],
-                                    isTaskChecked: true,
-                                    index: index,
-                                  ));
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(15.0),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness == Brightness.light
-                                        ? Color(0xFFF5F5FA)
-                                        : Color(0xFF2E2E2E),
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: getCurrentThemeBoxShadows(context), // Call the function here
-                                  ),
-                                  child: Text(
-                                    taskController.taskList[index],
-                                    style: TextStyle(
-                                      color: Theme.of(context).brightness == Brightness.light
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                ),
+                            Dismissible(
+                              key: ValueKey(task),
+                              background: Container(
+                                color: Colors.blue.shade300,
+                                child: Icon(Icons.delete_outline, size: 35, color: Colors.white),
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.symmetric(horizontal: 20),
                               ),
-                            ),
-                            SizedBox(width: 2,),
-
-                            GestureDetector(
-                                onTap: () {
-                                  taskController.isTaskSelected[index] = !taskController.isTaskSelected[index];
-                                  taskController.update();
-                                },
-
-                                  child: Container (
-                                    height: 90,
-                                    width: 90,
-                                    alignment: Alignment.center,
-
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Image.asset(
-                                          Theme.of(context).brightness == Brightness.light
-                                              ? 'assets/images/lightbox.png'
-                                              : 'assets/images/darknox.png',
-                                          height: 90,
-                                          width: 90,
-
-                                        ),
-                                        if (taskController.isTaskSelected[index])
-                                          Icon(
-                                            Icons.check,
-                                            color: Theme.of(context).brightness == Brightness.light
-                                                ? Colors.black
-                                                : Colors.white,
-                                            size: 25,
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) {
+                                taskController.deleteTask(index);
+                              },
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Get.to(TaskScreen(
+                                          taskName: task,
+                                          isTaskChecked: true,
+                                          index: index,
+                                          taskId: taskController.taskIdList[index],
+                                        ));
+                                      },
+                                      onLongPress: () {
+                                        _showOptionsDialog(context, taskController, index);
+                                      },
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Container(
+                                            height: 58,
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(15.0),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).brightness == Brightness.light
+                                                  ? Color(0xFFF5F5FA)
+                                                  : Color(0xFF2E2E2E),
+                                              borderRadius: BorderRadius.circular(8),
+                                              boxShadow: getCurrentThemeBoxShadows(context),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  task,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).brightness == Brightness.light
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                      ],
+                                          Positioned(
+                                            top: -10,
+                                            left: -10,
+                                            child: Obx(() => Visibility(
+                                              visible: taskController.pinnedTasks.contains(task),
+                                              child: Transform.rotate(
+                                                angle: 0.3,
+                                                child: Icon(
+                                                  Icons.push_pin_outlined,
+                                                  color: Theme.of(context).brightness == Brightness.light
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            )),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      taskController.toggleTaskSelection(
+                                        index,
+                                        !taskController.isTaskSelected[index],
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 80,
+                                      width: 80,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 10.0),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            if (isTimeUnit)
+                                              AspectRatio(
+                                                aspectRatio: 1,
+                                                child: Image.asset(
+                                                  'assets/images/circle.png',
+                                                  width: 30,
+                                                  height: 30,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            else
+                                              Container(
+                                                width: 30,
+                                                height: 30,
+                                                child: Image.asset(
+                                                  Theme.of(context).brightness == Brightness.light
+                                                      ? 'assets/images/img_1.png'
+                                                      : 'assets/images/img.png',
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            // Centering the Play/Pause Icon
+                                            // Inside your ListView.builder
+                                            if (isTimeUnit)
+                                              Obx(() => Center(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    taskController.togglePlayPause(index); // Toggle play/paus
 
+                                                    // Get.to(() => RecordingScreen(
+                                                    //   taskName: task,
+                                                    //   taskId: taskController.taskIdList[index],
+                                                    // ));
+                                                  },
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(left: 5.0, bottom: 1),
+                                                    child: Icon(
+                                                      taskController.isPlaying[index] == true ? Icons.pause : Icons.play_arrow,
+                                                      size: 24,
+                                                      color: Theme.of(context).brightness == Brightness.light
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )),
 
+                                            if (!isTimeUnit && taskController.isTaskSelected[index])
+                                              Center(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(left: 1.0, bottom: 3),
+                                                  child: Container(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: Image.asset(
+                                                      Theme.of(context).brightness == Brightness.light
+                                                          ? 'assets/images/darktic.png'
+                                                          : 'assets/images/lighttic.png',
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
-                },
-              );
-            }),
+                 }),
+              ),
+            ],
           ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   right: 0,
+          //   child: Center(
+          //     child: FloatingActionButton(
+          //       onPressed: () {
+          //         _showAddTaskBottomSheet(context);
+          //       },
+          //       child: Icon(
+          //         Icons.add,
+          //         color: subheadingStyle(context).color,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -454,7 +605,7 @@ class HabitScreen extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-                _showAddTaskBottomSheet(context);
+                Utils.showAddTaskBottomSheet(context);
               },
               icon: Icon(
                 Icons.add,
@@ -467,66 +618,71 @@ class HabitScreen extends StatelessWidget {
     );
   }
 
-  void _showAddTaskBottomSheet(BuildContext context) {
-    final TaskController taskController = Get.find();
-    final TextEditingController taskControllerInput = TextEditingController();
-    final FocusNode taskInputFocusNode = FocusNode();
+  void _showOptionsDialog(BuildContext context, TaskController taskController, int index) {
+    final task = taskController.taskList[index];
 
-    Get.bottomSheet(
-      ClipRRect(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-        child: Container(
-          height: 300,
-          padding: EdgeInsets.all(16.0),
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: Column(
-            children: [
-              Text(
-                'Add New Task',
-                style: subheadingStyle(context),
-              ),
-              SizedBox(height: 20),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(taskInputFocusNode);
-                },
-                child: Stack(
-                  alignment: Alignment.centerLeft,
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(0),
+              bottomLeft: Radius.circular(0),
+              bottomRight: Radius.circular(0),
+            ),
+          ),
+          child: SizedBox(
+            width: 200,
+            height: 130,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    taskBackgroundImage(context, 60),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 14.0),
-                      child: TextFormField(
-                        controller: taskControllerInput,
-                        focusNode: taskInputFocusNode,
-                        style: titleStyle(context),
-                        decoration: InputDecoration(
-                          hintText: 'Enter Task',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                    ListTile(
+                      leading: Icon(taskController.pinnedTasks.contains(task)
+                          ? Icons.push_pin
+                          : Icons.push_pin_outlined),
+                      title: Text(
+                        taskController.pinnedTasks.contains(task)
+                            ? 'Unpin'
+                            : 'Pin',
+                        style: TextStyle(fontSize: 14),
                       ),
+                      onTap: () {
+                        if (!taskController.pinnedTasks.contains(task) &&
+                            taskController.pinnedTasks.length >= 2) {
+                          // Show custom toast if trying to pin more than 2 tasks
+                          Utils.showCustomToast(
+                              context, 'You can only pin up to 2 tasks.');
+                        } else {
+                          taskController.pinTask(index);
+                        }
+                        Navigator.of(context).pop(); // Close dialog
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.share),
+                      title: Text('Share', style: TextStyle(fontSize: 14)),
+                      onTap: () {
+                        _shareTask(task);
+                        Navigator.of(context).pop(); // Close dialog
+                      },
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 40),
-              addButton(context, () {
-                final task = taskControllerInput.text.trim();
-                if (task.isNotEmpty) {
-                  taskController.addTask(task);
-                  final taskIndex = taskController.taskList.length - 1;
-                  taskController.addTaskForDate(DateTime.now(), taskIndex);
-                }
-                Get.back();
-              }),
-            ],
+            ),
           ),
-        ),
-      ),
-      backgroundColor: Colors.transparent,
+        );
+      },
     );
   }
-}
 
+  void _shareTask(String task) {}
+}
 
