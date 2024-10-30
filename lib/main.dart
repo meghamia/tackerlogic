@@ -26,14 +26,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeController themeController = Get.find(); // Get existing ThemeController
+    final ThemeController themeController = Get.find();
 
     return GetMaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeController.isDark.value ? ThemeMode.dark : ThemeMode.light, // Control theme mode
-      home: hasAddedHabit ? HabitScreen() : WelcomeScreen(),
+     home: hasAddedHabit ? HabitScreen() : WelcomeScreen(),
+     //home: WelcomeScreen(),
     );
   }
 }
