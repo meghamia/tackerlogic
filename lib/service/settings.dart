@@ -1,5 +1,3 @@
-// my_settings.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
@@ -11,9 +9,8 @@ class MySettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeController themeController = Get.find<ThemeController>(); // Get the ThemeController
+    final ThemeController themeController = Get.find<ThemeController>();
 
-    // Retrieve current theme data
     final ThemeData themeData = Theme.of(context);
     final isLightTheme = themeData.brightness == Brightness.light;
 
@@ -21,14 +18,16 @@ class MySettings extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Neumorphic(
-          style: neumorphicButtonStyle(context, isSelected: false,),
+          style: neumorphicAppBarStyle(context),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.transparent, // Transparent background
-              borderRadius: BorderRadius.circular(10), // Rounded corners to match NeumorphicBoxShape
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: AppBar(
-              title: const Text("Settings"),
+              title: Text("Settings",
+                style: HeadingStyle(context),
+              ),
               centerTitle: true,
               iconTheme: IconThemeData(color: isLightTheme ? Colors.black : Colors.white),
             ),
@@ -36,14 +35,16 @@ class MySettings extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding:  EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            SizedBox(height: 23,),
+            SizedBox(height: 23),
             Neumorphic(
-              style: neumorphicButtonStyle(context, isSelected: false,),
+              style: neumorphicButtonStyle(context, isSelected: false),
               child: ListTile(
-                title: const Text('Theme'),
+                title:  Text('Theme',
+                  style: subheadingStyle(context),
+                ),
                 trailing: GestureDetector(
                   onTap: () {
                     themeController.changeTheme();
@@ -63,14 +64,14 @@ class MySettings extends StatelessWidget {
                         ),
                       ),
                       child: Align(
-                        alignment: isDark ? Alignment.centerRight : Alignment.centerLeft, // Toggle alignment
+                        alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
                         child: Neumorphic(
                           style: neumorphicToggleButtonStyle(context),
                           child: Container(
-                            width: 35, // Width of the toggle button (increased)
-                            height: 35, // Height of the toggle button (increased)
+                            width: 35,
+                            height: 35,
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle, // Ensures circular shape
+                              shape: BoxShape.circle,
                             ),
                             child: Center(
                               child: Icon(
