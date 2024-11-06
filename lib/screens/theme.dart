@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
@@ -35,7 +35,7 @@ final ThemeData darkTheme = ThemeData(
   ),
 );
 
-NeumorphicStyle neumorphicAppBarStyle(BuildContext context) {
+NeumorphicStyle appBarStyle(BuildContext context) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
   return NeumorphicStyle(
@@ -47,7 +47,7 @@ NeumorphicStyle neumorphicAppBarStyle(BuildContext context) {
         ? Color(0xFFBDBDBD)
         : Color(0xFF1E1E1E), // Light or dark shadow
     shadowLightColor:
-        isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Lighter shadows
+    isLightTheme ? Color(0xFFFFFFFF) : Color(0xFF3E3E3E), // Lighter shadows
     shape: NeumorphicShape.convex,
     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.only(
       bottomLeft: Radius.circular(10),
@@ -166,7 +166,7 @@ List<BoxShadow> lightThemeBoxShadows = [
   ),
   BoxShadow(
     color:
-        Color(0xFFAAAACC).withOpacity(0.25), // Light shadow (with 25% opacity)
+    Color(0xFFAAAACC).withOpacity(0.25), // Light shadow (with 25% opacity)
     offset: Offset(5, 5), // Positive offset for the shadow
     blurRadius: 10,
     spreadRadius: 0,
@@ -206,23 +206,23 @@ BoxDecoration taskSelectedStyle({required bool isSelected}) {
   double blurRadius = 37.0; // Blurriness of the shadow
 
   return BoxDecoration(
-      // color: Color(0xFF3E3E3E), // Neumorphic background color
-      //borderRadius: BorderRadius.circular(11), // Rounded corners
-      // boxShadow: [
-      //   BoxShadow(
-      //     color: Color(0xFF1E1E1E).withOpacity(0.9), // Dark shadow
-      //     offset: offsetDistance, // Negative offset for inner shadow
-      //     blurRadius: blurRadius,
-      //     spreadRadius: -10,
-      //   ),
-      //   BoxShadow(
-      //     color: Color(0xFF3E3E3E).withOpacity(0.3), // Light shadow
-      //     offset: offsetDistance, // Positive offset for outer shadow
-      //     blurRadius: blurRadius,
-      //     spreadRadius: -100,
-      //   ),
-      // ],
-      );
+    // color: Color(0xFF3E3E3E), // Neumorphic background color
+    //borderRadius: BorderRadius.circular(11), // Rounded corners
+    // boxShadow: [
+    //   BoxShadow(
+    //     color: Color(0xFF1E1E1E).withOpacity(0.9), // Dark shadow
+    //     offset: offsetDistance, // Negative offset for inner shadow
+    //     blurRadius: blurRadius,
+    //     spreadRadius: -10,
+    //   ),
+    //   BoxShadow(
+    //     color: Color(0xFF3E3E3E).withOpacity(0.3), // Light shadow
+    //     offset: offsetDistance, // Positive offset for outer shadow
+    //     blurRadius: blurRadius,
+    //     spreadRadius: -100,
+    //   ),
+    // ],
+  );
 }
 
 TextStyle getDrawerButtonTextStyle(BuildContext context) {
@@ -255,7 +255,7 @@ Widget neumorphicGraphContainer(BuildContext context, {required Widget child}) {
           ? Color(0xFFF5F5FA)
           : Color(0xFF333333), // Background color based on theme
       borderRadius:
-          BorderRadius.circular(11), // Same as NeumorphicBoxShape border radius
+      BorderRadius.circular(11), // Same as NeumorphicBoxShape border radius
       boxShadow: isLightTheme
           ? lightThemeBoxShadows
           : darkThemeBoxShadows, // Apply shadows based on theme
