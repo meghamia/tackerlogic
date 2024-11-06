@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:goalsync/screens/calendar_screen.dart';
@@ -81,7 +81,7 @@ class TaskScreen extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Neumorphic(
-          style: neumorphicAppBarStyle(
+          style: appBarStyle(
             context,
           ),
           child: Container(
@@ -137,7 +137,7 @@ class TaskScreen extends StatelessWidget {
                 double maxValue = progressData.reduce((a, b) => a > b ? a : b);
                 final currentWeekBarGroups = List.generate(7, (index) {
                   double value =
-                      index < progressData.length ? progressData[index] : 0.0;
+                  index < progressData.length ? progressData[index] : 0.0;
                   return BarChartGroupData(
                     x: index,
                     barRods: [
@@ -174,7 +174,7 @@ class TaskScreen extends StatelessWidget {
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
                                         IconButton(
                                           icon: Icon(Icons.arrow_back),
@@ -201,8 +201,8 @@ class TaskScreen extends StatelessWidget {
                                       bottom: 5,
                                       child: Obx(() {
                                         DateTime currentEndDate =
-                                            currentStartDate.value
-                                                .add(Duration(days: 6));
+                                        currentStartDate.value
+                                            .add(Duration(days: 6));
                                         return Text(
                                           '${DateFormat('dd MMM').format(currentStartDate.value)} - ${DateFormat('dd MMM').format(currentEndDate)}',
                                           style: TextStyle(
@@ -240,7 +240,7 @@ class TaskScreen extends StatelessWidget {
                                           getTitlesWidget: (value, meta) {
                                             if (value >= 0 && value < 7) {
                                               final dayLabel =
-                                                  daysOfWeek[value.toInt()];
+                                              daysOfWeek[value.toInt()];
                                               return SideTitleWidget(
                                                 axisSide: meta.axisSide,
                                                 child: Padding(
@@ -251,7 +251,7 @@ class TaskScreen extends StatelessWidget {
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -286,11 +286,11 @@ class TaskScreen extends StatelessWidget {
                                       ),
                                       topTitles: AxisTitles(
                                         sideTitles:
-                                            SideTitles(showTitles: false),
+                                        SideTitles(showTitles: false),
                                       ),
                                       rightTitles: AxisTitles(
                                         sideTitles:
-                                            SideTitles(showTitles: false),
+                                        SideTitles(showTitles: false),
                                       ),
                                     ),
                                     gridData: FlGridData(
@@ -332,7 +332,7 @@ class TaskScreen extends StatelessWidget {
                                         }),
                                         isCurved: true,
                                         color: Theme.of(context).brightness ==
-                                                Brightness.light
+                                            Brightness.light
                                             ? Colors.black
                                             : Colors.white,
                                         barWidth: 2,
