@@ -1,0 +1,71 @@
+import 'dart:async';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+import '../database/dbhelper.dart';
+
+class RecordingController extends GetxController {
+  final int taskId;
+  RecordingController(this.taskId);
+  Timer? _timer;
+  int remainingSeconds = 900; // 15 minutes
+  final time = '00:15:00'.obs;
+  var isRecording = false.obs;
+
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
+
+  // Store start time when recording starts
+  DateTime? startTime;
+
+  void startRecording() {
+    if (_timer != null && _timer!.isActive) return;
+
+    isRecording.value = true;
+    startTime = DateTime.now(); // Save start time
+    const duration = Duration(seconds: 1);
+    _timer = Timer.periodic(duration, (Timer timer) {
+      if (remainingSeconds == 0) {
+        timer.cancel();
+        isRecording.value = false;
+        stopRecording(); // Call stop recording when timer ends
+      } else {
+        remainingSeconds--;
+        int hours = remainingSeconds ~/ 3600;
+        int minutes = (remainingSeconds % 3600) ~/ 60;
+        int seconds = remainingSeconds % 60;
+
+        time.value = hours.toString().padLeft(2, '0') + ":" +
+            minutes.toString().padLeft(2, '0') + ":" +
+            seconds.toString().padLeft(2, '0');
+      }
+    });
+  }
+
+  void stopRecording() async {
+    if (_timer != null) {
+      _timer!.cancel();
+      _timer = null;
+    }
+    isRecording.value = false;
+
+    // Save end time when recording stops
+    DateTime endTime = DateTime.now(); // Get current time for end time
+
+    // Save to database
+    if (startTime != null) {
+      await _databaseHelper.insertTrackTask(
+        taskId: taskId, // Replace with the actual task ID
+        startTime: startTime!, // Pass as DateTime
+        endTime: endTime, // Pass as DateTime
+      );
+    }
+  }
+
+  @override
+  void onClose() {
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    super.onClose();
+  }
+}
