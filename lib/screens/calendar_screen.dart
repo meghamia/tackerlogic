@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 import 'package:get/get.dart';
 import 'package:goalsync/screens/progress_screen.dart';
 import 'package:goalsync/screens/task_screen.dart';
@@ -33,7 +33,7 @@ class MyCalendar extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Neumorphic(
-          style: neumorphicAppBarStyle(context),
+          style: appBarStyle(context),
           child: AppBar(
             title: Text(taskName, style: HeadingStyle(context)),
 
