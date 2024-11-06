@@ -327,7 +327,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart'; // Import Neumorphic package
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 import 'package:get/get.dart';
 import 'package:goalsync/controller/task_controller.dart';
 import 'package:goalsync/screens/recording_screen.dart';
@@ -340,7 +340,6 @@ import '../controller/theme_controller.dart';
 
 class HabitScreen extends StatelessWidget {
   final TextEditingController taskControllerInput = TextEditingController();
-
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -363,12 +362,10 @@ class HabitScreen extends StatelessWidget {
               ),
               Expanded(
                 child: Obx(() {
-                  if (taskController.isTaskSelected.length <
-                      taskController.taskList.length) {
+                  if (taskController.isTaskSelected.length < taskController.taskList.length) {
                     taskController.isTaskSelected.addAll(
                       List.generate(
-                        taskController.taskList.length -
-                            taskController.isTaskSelected.length,
+                        taskController.taskList.length - taskController.isTaskSelected.length,
                             (_) => false,
                       ),
                     );
@@ -378,9 +375,8 @@ class HabitScreen extends StatelessWidget {
                     itemCount: taskController.taskList.length,
                     itemBuilder: (context, index) {
                       final task = taskController.taskList[index];
-                      final isTimeUnit = taskController.taskUnit[index] == 1; // Check if unit_id is 1 for time-based tasks
+                      final isTimeUnit = taskController.taskUnit[index] == 1;
 
-                      // Use Obx to make the icon reactive
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
@@ -464,9 +460,13 @@ class HabitScreen extends StatelessWidget {
                                   ),
                                   GestureDetector(
                                     onTap: () {
+                                      DateTime startTime = DateTime.now(); // Replace with actual start time
+                                      DateTime endTime = DateTime.now().add(Duration(hours: 1)); // Replace with actual end time
                                       taskController.toggleTaskSelection(
                                         index,
                                         !taskController.isTaskSelected[index],
+                                        startTime,
+                                        endTime,
                                       );
                                     },
                                     child: Container(
@@ -498,32 +498,25 @@ class HabitScreen extends StatelessWidget {
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
-                                            // Centering the Play/Pause Icon
-                                            // Inside your ListView.builder
                                             if (isTimeUnit)
                                               Obx(() => Center(
                                                 child: GestureDetector(
                                                   onTap: () {
-                                                    taskController.togglePlayPause(index); // Toggle play/paus
-
-                                                    // Get.to(() => RecordingScreen(
-                                                    //   taskName: task,
-                                                    //   taskId: taskController.taskIdList[index],
-                                                    // ));
+                                                    Get.to(() => RecordingScreen(
+                                                      taskName: task,
+                                                      taskId: taskController.taskIdList[index],
+                                                    ));
                                                   },
                                                   child: Padding(
                                                     padding: EdgeInsets.only(left: 5.0, bottom: 1),
                                                     child: Icon(
-                                                      taskController.isPlaying[index] == true ? Icons.pause : Icons.play_arrow,
+                                                      (taskController.isPlaying[index] ?? false) ? Icons.pause : Icons.play_arrow,
                                                       size: 24,
-                                                      color: Theme.of(context).brightness == Brightness.light
-                                                          ? Colors.black
-                                                          : Colors.white,
+                                                      color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
                                                     ),
                                                   ),
                                                 ),
                                               )),
-
                                             if (!isTimeUnit && taskController.isTaskSelected[index])
                                               Center(
                                                 child: Padding(
@@ -553,26 +546,11 @@ class HabitScreen extends StatelessWidget {
                       );
                     },
                   );
-                 }),
+                }
+                ),
               ),
             ],
           ),
-          // Positioned(
-          //   bottom: 0,
-          //   left: 0,
-          //   right: 0,
-          //   child: Center(
-          //     child: FloatingActionButton(
-          //       onPressed: () {
-          //         _showAddTaskBottomSheet(context);
-          //       },
-          //       child: Icon(
-          //         Icons.add,
-          //         color: subheadingStyle(context).color,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -585,9 +563,7 @@ class HabitScreen extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: Neumorphic(
-        style: neumorphicAppBarStyle(
-          context,
-        ),
+        style: appBarStyle(context),
         child: AppBar(
           title: Text("My Habits", style: HeadingStyle(context)),
           centerTitle: true,
@@ -656,13 +632,11 @@ class HabitScreen extends StatelessWidget {
                       onTap: () {
                         if (!taskController.pinnedTasks.contains(task) &&
                             taskController.pinnedTasks.length >= 2) {
-                          // Show custom toast if trying to pin more than 2 tasks
-                          Utils.showCustomToast(
-                              context, 'You can only pin up to 2 tasks.');
+                          Utils.showCustomToast(context, 'You can only pin up to 2 tasks.');
                         } else {
                           taskController.pinTask(index);
                         }
-                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pop();
                       },
                     ),
                     ListTile(
@@ -670,7 +644,7 @@ class HabitScreen extends StatelessWidget {
                       title: Text('Share', style: TextStyle(fontSize: 14)),
                       onTap: () {
                         _shareTask(task);
-                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
