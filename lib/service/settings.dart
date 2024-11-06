@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 import 'package:get/get.dart';
 import '../controller/theme_controller.dart';
 import '../screens/theme.dart';
@@ -18,7 +18,7 @@ class MySettings extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Neumorphic(
-          style: neumorphicAppBarStyle(context),
+          style: appBarStyle(context),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.transparent,
