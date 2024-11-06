@@ -1,10 +1,3 @@
-
-
-
-
-import 'package:sqflite/sqflite.dart';
-import 'package:intl/intl.dart';
-
 // class DatabaseHelper {
 //   // Table names
 //   static const String tableTasks = 'tasks';
@@ -15,6 +8,7 @@ import 'package:intl/intl.dart';
 //   static const String columnId = 'id';
 //   static const String columnTask = 'task';
 //   static const String columnUnitId = 'unit_id';
+//   static const String columnTarget = 'target';
 //
 //   // Column names for task_tracked table
 //   static const String columnUpdateId = 'id';
@@ -24,6 +18,7 @@ import 'package:intl/intl.dart';
 //   // Column names for units table
 //   static const String columnUnitLabel = 'unit_label';
 //   static const String columnUnitValue = 'unit_value';
+//
 //
 //
 //   // Singleton pattern
@@ -53,6 +48,7 @@ import 'package:intl/intl.dart';
 //             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
 //             $columnTask TEXT,
 //             $columnUnitId INTEGER,
+//             $columnTarget INTEGER,
 //             FOREIGN KEY($columnUnitId) REFERENCES $tableUnits($columnUnitId)
 //           )
 //         ''');
@@ -83,7 +79,6 @@ import 'package:intl/intl.dart';
 //   }
 //
 //   Future<void> _insertStaticUnits(Database db) async {
-//     // List of units to insert
 //     List<Map<String, String>> units = [
 //       {'unit_label': 'Time', 'unit_value': 'minutes'},
 //       {'unit_label': 'Pages', 'unit_value': 'pages'},
@@ -93,7 +88,6 @@ import 'package:intl/intl.dart';
 //       {'unit_label': 'None', 'unit_value': ''},
 //     ];
 //
-//     // Insert each unit into the units table
 //     for (var unit in units) {
 //       await db.insert(
 //         tableUnits,
@@ -105,17 +99,75 @@ import 'package:intl/intl.dart';
 //     }
 //   }
 //
-//   // Method to insert a new task
-//   Future<int> insertTask(String task, int unitId) async {
+//
+//
+//   // Future<int> insertTask(String task, int unitId, int target) async {
+//   //   final db = await database;
+//   //
+//   //   final unitResult = await db.query(
+//   //     tableUnits,
+//   //     where: '$columnUnitId = ?',
+//   //     whereArgs: [unitId],
+//   //   );
+//   //
+//   //   String unitValue = '';
+//   //   if (unitResult.isNotEmpty) {
+//   //     unitValue = unitResult.first[columnUnitLabel] as String;
+//   //   }
+//   //
+//   //   if (unitValue == 'Time') {
+//   //     // Convert target from hours to minutes
+//   //     target = target * 60; // Assuming target is in hours, convert to minutes
+//   //   }
+//   //
+//   //   // Construct the target with the unit
+//   //   String targetWithUnit = '$target';
+//   //   // If you want to include the unit value, uncomment the line below
+//   //   // ' $unitValue';
+//   //
+//   //   return await db.insert(
+//   //     tableTasks,
+//   //     {
+//   //       columnTask: task,
+//   //       columnUnitId: unitId,
+//   //       columnTarget: targetWithUnit,
+//   //     },
+//   //   );
+//   // }
+//
+//   Future<int> insertTask(String task, int unitId, int target) async {
 //     final db = await database;
+//
+//     // Fetch the unit value based on the unitId
+//     final unitResult = await db.query(
+//       tableUnits,
+//       where: '$columnUnitId = ?',
+//       whereArgs: [unitId],
+//     );
+//
+//     String unitValue = '';
+//     if (unitResult.isNotEmpty) {
+//       unitValue = unitResult.first[columnUnitLabel] as String;
+//     }
+//
+//     if (unitValue == 'Time') {
+//       // Convert target from hours to minutes only for Time unit
+//       target = target * 60; // Convert hours to minutes
+//     }
+//
+//     // Construct the target with the unit value if needed
+//     // Since we only save the target value directly, we don't need to format it here
 //     return await db.insert(
 //       tableTasks,
 //       {
 //         columnTask: task,
 //         columnUnitId: unitId,
+//         columnTarget: target, // Save the target directly
 //       },
 //     );
 //   }
+//
+//
 //
 //   // Method to insert a new task track
 //   Future<int> insertTrackTask(int taskId) async {
@@ -176,6 +228,9 @@ import 'package:intl/intl.dart';
 //     return result.isNotEmpty;
 //   }
 //
+//
+//
+//
 //   // Fetch all tasks
 //   Future<List<Map<String, dynamic>>> getTasks() async {
 //     final db = await database;
@@ -196,7 +251,7 @@ import 'package:intl/intl.dart';
 //     if (result.isNotEmpty) {
 //       return result.first[columnUnitId] as int;
 //     } else {
-//       return null; //if no matching unit found
+//       return null;
 //     }
 //   }
 //
@@ -208,8 +263,35 @@ import 'package:intl/intl.dart';
 //     print('Units fetched from database: $units');
 //     return units;
 //   }
+//
+//
+//   Future<Map<String, dynamic>?> getTargetValue(int taskId) async {
+//     final db = await database;
+//
+//     // Query to join tasks and units tables
+//     final result = await db.rawQuery('''
+//     SELECT t.$columnTarget, u.$columnUnitValue
+//     FROM $tableTasks t
+//     JOIN $tableUnits u ON t.$columnUnitId = u.$columnUnitId
+//     WHERE t.$columnId = ?
+//   ''', [taskId]);
+//
+//     // If a record is found, return the target value and unit value
+//     if (result.isNotEmpty) {
+//       return {
+//         'target': result.first[columnTarget], // The target value from tasks table
+//         'unit_value': result.first[columnUnitValue], // The unit value from units table
+//       };
+//     }
+//     return null; // Return null if no record is found
+//   }
+//
+//
+//
 // }
 
+import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   // Table names
@@ -222,6 +304,8 @@ class DatabaseHelper {
   static const String columnTask = 'task';
   static const String columnUnitId = 'unit_id';
   static const String columnTarget = 'target';
+  static const String columnStartTime = 'start_time';
+  static const String columnEndTime = 'end_time';
 
   // Column names for task_tracked table
   static const String columnUpdateId = 'id';
@@ -272,6 +356,8 @@ class DatabaseHelper {
             $columnUpdateId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnTaskId INTEGER,
             $columnTrackedDate TEXT,
+            $columnStartTime TEXT,
+            $columnEndTime TEXT,
             FOREIGN KEY($columnTaskId) REFERENCES $tableTasks($columnId)
           )
         ''');
@@ -383,16 +469,29 @@ class DatabaseHelper {
 
 
   // Method to insert a new task track
-  Future<int> insertTrackTask(int taskId) async {
+  Future<int> insertTrackTask({
+    required int taskId,
+    required DateTime startTime,
+    DateTime? endTime,
+  }) async {
     final db = await database;
+
+    // Define a simple string format for date and time
+    String formatDateTime(DateTime dateTime) {
+      return "${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+    }
+
     return await db.insert(
       tableTaskTrack,
       {
         columnTaskId: taskId,
-        columnTrackedDate: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+        columnTrackedDate: DateFormat('dd-MM-yyyy').format(DateTime.now()), // Keep the tracked date as is
+        columnStartTime: formatDateTime(startTime), // Convert to simple string
+        columnEndTime: endTime != null ? formatDateTime(endTime) : null, // Convert to simple string or null
       },
     );
   }
+
 
   // Method to delete a task tracking record
   Future<void> deleteTrackTask(int taskId, String? trackedDate) async {
@@ -483,7 +582,7 @@ class DatabaseHelper {
 
     // Query to join tasks and units tables
     final result = await db.rawQuery('''
-    SELECT t.$columnTarget, u.$columnUnitValue 
+    SELECT t.$columnTarget, u.$columnUnitValue
     FROM $tableTasks t
     JOIN $tableUnits u ON t.$columnUnitId = u.$columnUnitId
     WHERE t.$columnId = ?
@@ -499,6 +598,21 @@ class DatabaseHelper {
     return null; // Return null if no record is found
   }
 
+  Future<List<Map<String, dynamic>>> getTimeLapseForTask(int taskId) async {
+    final db = await database;
+
+    // Get today's date in the same format as tracked_date in the database
+    String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+    // Query to fetch tracked time entries for a specific task ID and today's date
+    final result = await db.query(
+      tableTaskTrack,
+      where: '$columnTaskId = ? AND $columnTrackedDate = ?',
+      whereArgs: [taskId, todayDate],
+    );
+
+    return result; // Return the fetched records
+  }
 
 
 }
