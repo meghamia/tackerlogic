@@ -244,10 +244,6 @@ class TaskController extends GetxController {
   var taskUnit = <int>[].obs;
   var isPlaying = <int, bool>{}.obs;
 
-
-
-
-
   @override
   void onInit() {
     super.onInit();
@@ -260,13 +256,16 @@ class TaskController extends GetxController {
     try {
       final tasks = await _databaseHelper.getTasks();
       print('Tasks retrieved: $tasks');
-      taskList.value = tasks.map((task) => task[DatabaseHelper.columnTask] as String)
+      taskList.value = tasks
+          .map((task) => task[DatabaseHelper.columnTask] as String)
           .toList();
-      taskIdList.value = tasks.map((task) => task[DatabaseHelper.columnId] as int).toList();
-      taskUnit.value = tasks.map((task) => task[DatabaseHelper.columnUnitId] as int).toList(); // Load unit IDs
+      taskIdList.value =
+          tasks.map((task) => task[DatabaseHelper.columnId] as int).toList();
+      taskUnit.value = tasks
+          .map((task) => task[DatabaseHelper.columnUnitId] as int)
+          .toList(); // Load unit IDs
 
       isTaskSelected.value = List<bool>.filled(taskList.length, false);
-
 
       String trackedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
@@ -310,9 +309,9 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<int> addTask(String task, int unitId,int target) async {
+  Future<int> addTask(String task, int unitId, int target) async {
     try {
-      int result = await _databaseHelper.insertTask(task, unitId,target);
+      int result = await _databaseHelper.insertTask(task, unitId, target);
       loadTasks();
       return result;
     } catch (e) {
@@ -360,19 +359,15 @@ class TaskController extends GetxController {
     }
   }
 
-  void deleteTrackTaskByTaskId(int taskId)async{
+  void deleteTrackTaskByTaskId(int taskId) async {
     try {
-
-      await _databaseHelper.deleteTrackTask(taskId,null);
+      await _databaseHelper.deleteTrackTask(taskId, null);
       //isTaskSelected[index] = false;
-
 
       //isTaskSelected.removeAt(index);
     } catch (e) {
       print("Error deleting task: $e");
     }
-
-
   }
 
   void deleteTask(int index) async {
@@ -414,26 +409,26 @@ class TaskController extends GetxController {
   //     print("Error toggling task selection: $e");
   //   }
   // }
-  Future<void> toggleTaskSelection(int index, bool value) async {
+  Future<void> toggleTaskSelection(
+      int index, bool value, DateTime? startTime, DateTime? endTime) async {
     try {
-      // Check if the index is within range
       if (index < 0 || index >= taskList.length) {
         throw ArgumentError("Index out of range");
       }
 
-      // Retrieve task details
       String trackedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
       int taskId = taskIdList[index];
 
-      // Update the selection status
       isTaskSelected[index] = value;
 
-      // If the task is selected (checkbox is checked)
       if (value) {
-        await _databaseHelper.insertTrackTask(taskId);
-        print('Task with ID: $taskId has been tracked for $trackedDate.');
+        if (startTime != null && endTime != null) {
+          await _databaseHelper.insertTrackTask(taskId: taskId, startTime: startTime, endTime: endTime);
+          print('Task with ID: $taskId has been tracked for $trackedDate from $startTime to $endTime.');
+        } else {
+          print('Task with ID: $taskId is selected, but not tracked as it is not a time unit.');
+        }
       } else {
-        // If unchecked, remove only the specific tracking entry
         await _databaseHelper.deleteTrackTask(taskId, trackedDate);
         print('Tracking removed for task ID: $taskId for date: $trackedDate.');
       }
@@ -441,8 +436,6 @@ class TaskController extends GetxController {
       print("Error toggling task selection: $e");
     }
   }
-
-
 
   void addTaskForDate(DateTime date, int taskIndex) {
     final dateKey = DateFormat('dd-MM-yyyy').format(date);
@@ -519,6 +512,7 @@ class TaskController extends GetxController {
     print('Pinned tasks saved: ${pinnedTasks.toList()}');
     update();
   }
+
   Future<void> addUnitToTask(int task, String unit) async {
     try {
       print('Unit "$unit" added to task with ID $task successfully');
@@ -528,24 +522,54 @@ class TaskController extends GetxController {
     }
   }
 
-
   Future<Map<String, dynamic>?> getTargetValue(int taskId) async {
     return await _databaseHelper.getTargetValue(taskId);
   }
+
   Future<double> getProgressForDate(int taskId, DateTime date) async {
     String trackedDate = DateFormat('dd-MM-yyyy').format(date);
-    bool isTracked = await _databaseHelper.isTaskTrackedForDate(taskId, trackedDate);
+    bool isTracked =
+        await _databaseHelper.isTaskTrackedForDate(taskId, trackedDate);
 
     return isTracked ? 1.0 : 0.0;
   }
 
+  // void togglePlayPause(int index) async {
+  //   try {
+  //     if (index < 0 || index >= taskList.length) {
+  //       throw ArgumentError("Index out of range");
+  //     }
+  //
+  //     String trackedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  //     int taskId = taskIdList[index];
+  //
+  //     // Initialize isPlaying[index] to false if it's null
+  //     isPlaying[index] ??= false;
+  //
+  //     // Toggle the isPlaying state safely
+  //     isPlaying[index] = !isPlaying[index]!;
+  //
+  //     update();
+  //
+  //     // If the task is now in a "playing" state (selected or activated)
+  //     if (isPlaying[index]!) {
+  //       isTaskSelected[index] = true;
+  //
+  //       DateTime startTime = DateTime.now(); // Capture the start time
+  //       await _databaseHelper.insertTrackTask(taskId: taskId, startTime: startTime);
+  //       print('Task with ID: $taskId has been tracked for $trackedDate.');
+  //     } else {
+  //       isTaskSelected[index] = false;
+  //
+  //       await _databaseHelper.deleteTrackTask(taskId, trackedDate);
+  //       print('Tracking removed for task ID: $taskId for date: $trackedDate.');
+  //     }
+  //   } catch (e) {
+  //     print("Error toggling task selection: $e");
+  //   }
+  // }
 
-  void togglePlayPause(int index) {
-    // Initialize to false if it's null
-    isPlaying[index] ??= false;
-
-    // Toggle the state
-    isPlaying[index] = !isPlaying[index]!;
-    update(); // Notify listeners
+  Future<List<Map<String, dynamic>>> getTimeLapseForTask(int taskId) async {
+    return await _databaseHelper.getTimeLapseForTask(taskId);
   }
 }
