@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';//add this
 import 'package:get/get.dart';
 import 'package:goalsync/screens/taskwidgets_homescreen.dart';
 import 'package:goalsync/screens/theme.dart';
@@ -6,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/task_controller.dart';
 import '../database/dbhelper.dart';
 import 'habit_screen.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,7 +17,7 @@ class WelcomeScreen extends StatelessWidget {
   final TaskController taskCtrl = Get.put(TaskController());
   final TextEditingController textCtrl = TextEditingController();
   final TextEditingController additionalFieldController =
-      TextEditingController();
+  TextEditingController();
   String? selectedUnitLabel;
   String? selectedUnitValue; // Variable for unit value
   int? selectedUnitId;
@@ -127,7 +127,7 @@ class WelcomeScreen extends StatelessWidget {
                                   .trim(); // New field value
 
                               int targetValue =
-                                  0; // Default value for target if not provided
+                              0; // Default value for target if not provided
                               if (additionalInfo.isNotEmpty) {
                                 try {
                                   if (selectedUnitValue == "hours") {
@@ -155,7 +155,7 @@ class WelcomeScreen extends StatelessWidget {
                                 Get.back();
 
                                 final prefs =
-                                    await SharedPreferences.getInstance();
+                                await SharedPreferences.getInstance();
                                 await prefs.setBool('hasAddedHabit', true);
 
                                 Get.off(() => HabitScreen(),
@@ -181,7 +181,7 @@ class WelcomeScreen extends StatelessWidget {
                             Get.back();
                           },
                           child:
-                              Icon(Icons.close, size: 28, color: Colors.black),
+                          Icon(Icons.close, size: 28, color: Colors.black),
                         ),
                       ),
                     ],
@@ -238,7 +238,7 @@ class WelcomeScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 14.0),
             child:
-                Text(selectedUnit ?? 'Select Unit', style: titleStyle(context)),
+            Text(selectedUnit ?? 'Select Unit', style: titleStyle(context)),
           ),
           Positioned(
             right: 14.0,
