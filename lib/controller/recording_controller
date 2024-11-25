@@ -1,44 +1,173 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
 import '../database/dbhelper.dart';
+import '../service/notify_service.dart';
 
-class RecordingController extends GetxController {
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../database/dbhelper.dart';
+import '../service/notify_service.dart';
+
+// class RecordingController extends GetxController {
+//   final int taskId;
+//   RecordingController(this.taskId);
+//
+//   Timer? _timer;
+//   int remainingSeconds = 0;
+//   final time = '00:00:00'.obs;
+//   var isRecording = false.obs;
+//
+//   final DatabaseHelper _databaseHelper = DatabaseHelper();
+//   final NotificationService _notificationService = NotificationService();
+//
+//   DateTime? startTime;
+//
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     _notificationService.initNotification();
+//   }
+//
+//   void startRecording() {
+//     if (_timer != null && _timer!.isActive) return;
+//
+//     isRecording.value = true;
+//     startTime = DateTime.now();
+//     const duration = Duration(seconds: 1);
+//
+//     _timer = Timer.periodic(duration, (Timer timer) {
+//       remainingSeconds++;
+//       int hours = remainingSeconds ~/ 3600;
+//       int minutes = (remainingSeconds % 3600) ~/ 60;
+//       int seconds = remainingSeconds % 60;
+//
+//       time.value = '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+//
+//       // Update notification with the elapsed time
+//       // _notificationService.showNotification(
+//       //   id: taskId, // Unique ID for each task notification
+//       //   title: "Task Timer",
+//       //   body: "Time elapsed: ${time.value}",
+//       // );
+//     });
+//   }
+//
+//   void stopRecording() async {
+//     if (_timer != null) {
+//       _timer!.cancel(); // Stop the timer
+//       _timer = null;
+//     }
+//     isRecording.value = false;
+//
+//     DateTime endTime = DateTime.now();
+//
+//
+//     if (startTime != null) {
+//       await _databaseHelper.insertTrackTask(
+//         taskId: taskId,
+//         startTime: startTime!,
+//         endTime: endTime,
+//       );
+//     }
+//
+//    _notificationService.notificationsPlugin.cancel(taskId);
+//   }
+//
+//   @override
+//   void onClose() {
+//     if (_timer != null) {
+//       _timer!.cancel();
+//     }
+//     super.onClose();
+//   }
+// }
+
+
+
+
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:flutter/widgets.dart';
+
+class RecordingController extends GetxController with WidgetsBindingObserver {
   final int taskId;
-  RecordingController(this.taskId);
-  Timer? _timer;
-  int remainingSeconds = 900; // 15 minutes
-  final time = '00:15:00'.obs;
-  var isRecording = false.obs;
-
+  int? targetDuration;
+  int remainingSeconds = 0;
+  final time = '00:00:00'.obs;
+  final isRecording = false.obs;
+  final isTimeUp = false.obs;
+  final isDialogShown = false.obs;
   final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final NotificationService _notificationService = NotificationService();
 
-  // Store start time when recording starts
   DateTime? startTime;
+  DateTime? lastKnownPauseTime;
+
+  RecordingController(this.taskId);
+
+  Timer? _timer;
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addObserver(this);
+    _notificationService.initNotification();
+    fetchTargetDuration(); 
+    _loadRecordingState();
+    print('RecordingController initialized');
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    print('RecordingController closed');
+    super.onClose();
+  }
+
+  void fetchTargetDuration() async {
+    targetDuration = await _databaseHelper.getTargetDurationForTask(taskId);
+    print('Target duration fetched: $targetDuration');
+  }
+
+  void _loadRecordingState() async {
+    // If app restarted, start from 0
+    remainingSeconds = 0;
+    time.value = '00:00:00';
+    startTime = DateTime.now();
+    print('App started fresh, timer reset');
+  }
 
   void startRecording() {
-    if (_timer != null && _timer!.isActive) return;
+    if (_timer != null && _timer!.isActive) {
+      print('Timer is already running');
+      return;
+    }
 
     isRecording.value = true;
-    startTime = DateTime.now(); // Save start time
+
+    // If there's a previous pause time, calculate the remaining time
+    if (lastKnownPauseTime != null) {
+      remainingSeconds += DateTime.now().difference(lastKnownPauseTime!).inSeconds;
+      lastKnownPauseTime = null; // Reset pause time
+    }
+
+    startTime = DateTime.now();
+    time.value = formatTime(remainingSeconds);
+
     const duration = Duration(seconds: 1);
     _timer = Timer.periodic(duration, (Timer timer) {
-      if (remainingSeconds == 0) {
-        timer.cancel();
-        isRecording.value = false;
-        stopRecording(); // Call stop recording when timer ends
-      } else {
-        remainingSeconds--;
-        int hours = remainingSeconds ~/ 3600;
-        int minutes = (remainingSeconds % 3600) ~/ 60;
-        int seconds = remainingSeconds % 60;
+      remainingSeconds++;
+      time.value = formatTime(remainingSeconds);
 
-        time.value = hours.toString().padLeft(2, '0') + ":" +
-            minutes.toString().padLeft(2, '0') + ":" +
-            seconds.toString().padLeft(2, '0');
-      }
+      checkTargetCompletion();
     });
+
+    print('Recording started');
   }
 
   void stopRecording() async {
@@ -46,26 +175,84 @@ class RecordingController extends GetxController {
       _timer!.cancel();
       _timer = null;
     }
+
     isRecording.value = false;
 
-    // Save end time when recording stops
-    DateTime endTime = DateTime.now(); // Get current time for end time
+    DateTime endTime = DateTime.now();
+    print('Recording stopped, duration: ${endTime.difference(startTime!).inSeconds} seconds');
 
-    // Save to database
+    // Save the state before stopping
     if (startTime != null) {
       await _databaseHelper.insertTrackTask(
-        taskId: taskId, // Replace with the actual task ID
-        startTime: startTime!, // Pass as DateTime
-        endTime: endTime, // Pass as DateTime
+        taskId: taskId,
+        startTime: startTime!,
+        endTime: endTime,
       );
+    }
+
+    _notificationService.notificationsPlugin.cancel(taskId);
+    resetTimer();
+  }
+
+  void resetTimer() {
+    remainingSeconds = 0;
+    time.value = '00:00:00';
+    print('Timer reset to 00:00:00');
+  }
+
+  void checkTargetCompletion() {
+    if (targetDuration != null && remainingSeconds >= targetDuration!) {
+      if (!isTimeUp.value && !isDialogShown.value) {
+        isTimeUp.value = true; // Notify UI
+        isDialogShown.value = true; // dialog shows only once
+        Future.delayed(Duration(seconds: 5), () {
+          isDialogShown.value = false;
+          resumeRecording();
+        });
+      }
     }
   }
 
-  @override
-  void onClose() {
-    if (_timer != null) {
+  void resumeRecording() {
+    startRecording(); // Resume the timer from the last point
+  }
+
+  void pauseTimer() {
+    if (_timer != null && _timer!.isActive) {
+      print('Pausing timer');
+      lastKnownPauseTime = DateTime.now();
       _timer!.cancel();
     }
-    super.onClose();
+  }
+
+  void resumeTimer() {
+    print('Resuming timer from $remainingSeconds seconds');
+    startRecording();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    print('App lifecycle state changed: $state');
+
+    if (state == AppLifecycleState.paused) {
+      print('App paused, pausing timer');
+      pauseTimer(); // Pause when app goes into background
+    } else if (state == AppLifecycleState.resumed) {
+      print('App resumed, resuming timer');
+      resumeTimer(); // Resume when app comes back to foreground
+    }
+  }
+
+  String formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  void resetDialogState() {
+    isDialogShown.value = false;
   }
 }
