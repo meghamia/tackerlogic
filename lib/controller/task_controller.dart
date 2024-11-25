@@ -256,14 +256,9 @@ class TaskController extends GetxController {
     try {
       final tasks = await _databaseHelper.getTasks();
       print('Tasks retrieved: $tasks');
-      taskList.value = tasks
-          .map((task) => task[DatabaseHelper.columnTask] as String)
-          .toList();
-      taskIdList.value =
-          tasks.map((task) => task[DatabaseHelper.columnId] as int).toList();
-      taskUnit.value = tasks
-          .map((task) => task[DatabaseHelper.columnUnitId] as int)
-          .toList(); // Load unit IDs
+      taskList.value = tasks.map((task) => task[DatabaseHelper.columnTask] as String).toList();
+      taskIdList.value = tasks.map((task) => task[DatabaseHelper.columnId] as int).toList();
+      taskUnit.value = tasks.map((task) => task[DatabaseHelper.columnUnitId] as int).toList(); // Load unit IDs
 
       isTaskSelected.value = List<bool>.filled(taskList.length, false);
 
@@ -336,8 +331,7 @@ class TaskController extends GetxController {
         },
       );
 
-      print(
-          "Inserted task tracking with update_id: $updateId for task_id: $id.");
+      print("Inserted task tracking with update_id: $updateId for task_id: $id.");
     } catch (e) {
       print("Error tracking task status for task $id: $e");
     }
@@ -569,7 +563,21 @@ class TaskController extends GetxController {
   //   }
   // }
 
+
+  //newly created
+  // void togglePlayPause(int index) {
+  //   // Stop all other tasks from playing
+  //   isPlaying.updateAll((key, value) => false);
+  //
+  //   // Toggle the current task's play state
+  //   isPlaying[index] = !(isPlaying[index] ?? false);
+  // }
+
+
   Future<List<Map<String, dynamic>>> getTimeLapseForTask(int taskId) async {
     return await _databaseHelper.getTimeLapseForTask(taskId);
   }
+
+
+
 }
